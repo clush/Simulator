@@ -51,9 +51,10 @@ public class MyController implements Initializable{
 
 	
 	//Beim Klicken auf btnFoo, ChangeText Methode ändern den Text in txtBar
-	public void ChangeText(ActionEvent event){
-		System.out.println("Click!");
-		txtBar.setText("Penis!");
+	public void StartProgramm(ActionEvent event){
+		String zeile = txtCode.getText(0, 10);
+		System.out.println(zeile);
+		
 	}
 	
 	//Beim Klicken soll der Inhalt der Textdatei eingefügt werden
@@ -63,9 +64,10 @@ public class MyController implements Initializable{
 		fileChooser.setTitle("Öffne Datei");
 		File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
-        	
+        	if (txtCode.getText() != null)txtCode.setText(null);
         	try {
                 Scanner s = new Scanner(file).useDelimiter("//s+");
+                
                 while (s.hasNext()) {
                     if (s.hasNextInt()) { // check if next token is an int
                         txtCode.appendText(s.nextInt() + " "); // display the found integer

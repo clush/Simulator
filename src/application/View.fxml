@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="500.0" prefWidth="766.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MyController">
    <children>
-      <Button fx:id="btnFoo" layoutX="70.0" layoutY="34.0" mnemonicParsing="false" onAction="#ChangeText" text="Test" />
+      <Button fx:id="btnFoo" layoutX="70.0" layoutY="34.0" mnemonicParsing="false" onAction="#StartProgramm" text="Start" />
       <Label fx:id="txtBar" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="261.0" text="© Claus Burkhart and Thomas Coenen" />
       <TableView layoutX="434.0" layoutY="34.0" prefHeight="253.0" prefWidth="302.0">
         <columns>
