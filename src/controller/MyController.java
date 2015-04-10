@@ -56,11 +56,11 @@ public class MyController implements Initializable{
 		txtBar.setText("Penis!");
 	}
 	
-	//Beim Klicken soll der Inhalt der (noch nicht vorhandenen) Textdatei, eingefügt werden
+	//Beim Klicken soll der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
 		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open Resource File");
+		fileChooser.setTitle("Öffne Datei");
 		File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
         	
