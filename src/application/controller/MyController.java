@@ -21,7 +21,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -52,7 +51,7 @@ public class MyController implements Initializable{
 	
 	@FXML
 	private Label txtBar;
-	
+	//private TextFlow txtField;
 	@FXML
 	private TextArea txtCode;
 
@@ -100,44 +99,35 @@ public class MyController implements Initializable{
                 }
         }  
         // Spaltendefinition
-        TableColumn<ValueClass, String> colBp = new TableColumn<ValueClass, String>("BP");        
-        colBp.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column0"));
-        
-        
-        TableColumn<ValueClass, String> colPc = new TableColumn<ValueClass, String>("PC");        
-        colPc.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column1"));
+        TableColumn<ValueClass, String> col1 = new TableColumn<ValueClass, String>("PC");        
+        col1.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column1"));
 
-        TableColumn<ValueClass, String> colCode = new TableColumn<ValueClass, String>("Code");
-        colCode.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column2"));
+        TableColumn<ValueClass, String> col2 = new TableColumn<ValueClass, String>("Code");
+        col2.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column2"));
 
-        TableColumn<ValueClass, String> colText = new TableColumn<ValueClass, String>("Text");
-        colText.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column3"));
+        TableColumn<ValueClass, String> col3 = new TableColumn<ValueClass, String>("Text");
+        col3.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column3"));
         
-        colBp.setSortable(false);
-        colBp.setMinWidth(22);
-        colBp.setMaxWidth(22);
+        col1.setEditable(false);
+        col1.setSortable(false);
+        col1.setMinWidth(40);
+        col1.setMaxWidth(40);
         
-        colPc.setEditable(false);
-        colPc.setSortable(false);
-        colPc.setMinWidth(40);
-        colPc.setMaxWidth(40);
+        col2.setEditable(false);
+        col2.setSortable(false);
+        col2.setMinWidth(40);
+        col2.setMaxWidth(40);
         
-        colCode.setEditable(false);
-        colCode.setSortable(false);
-        colCode.setMinWidth(40);
-        colCode.setMaxWidth(40);
-        
-        colText.setEditable(false);
-        colText.setSortable(false);
-        colText.setMinWidth(200);
+        col3.setEditable(false);
+        col3.setSortable(false);
+        col3.setMinWidth(40);
 
         // Tabellenerzeugung
                 
         tableView.setItems(data);
-        tableView.getColumns().add(colBp);
-        tableView.getColumns().add(colPc);
-        tableView.getColumns().add(colCode);
-        tableView.getColumns().add(colText);
+        tableView.getColumns().add(col1);
+        tableView.getColumns().add(col2);
+        tableView.getColumns().add(col3);
         
        
 
