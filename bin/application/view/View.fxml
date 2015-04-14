@@ -12,13 +12,13 @@
    <children>
       <Button fx:id="btnFoo" layoutX="70.0" layoutY="34.0" mnemonicParsing="false" onAction="#StartProgramm" text="Start" />
       <Label fx:id="txtBar" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="261.0" text="© Claus Burkhart and Thomas Coenen" />
-      <TableView fx:id="tableView" focusTraversable="false" layoutX="14.0" layoutY="61.0" prefHeight="426.0" prefWidth="366.0">
+      <TableView fx:id="tableView" fixedCellSize="0.0" focusTraversable="false" layoutX="14.0" layoutY="61.0" prefHeight="426.0" prefWidth="366.0">
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
       <Button fx:id="btnInsert" layoutX="14.0" layoutY="34.0" mnemonicParsing="false" onAction="#InsertText" text="Open" />
-      <ScrollPane focusTraversable="false" layoutX="391.0" layoutY="274.0" prefHeight="213.0" prefWidth="244.0">
+      <ScrollPane focusTraversable="false" layoutX="392.0" layoutY="243.0" prefHeight="213.0" prefWidth="244.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="364.0" prefWidth="251.0">
                <children>
