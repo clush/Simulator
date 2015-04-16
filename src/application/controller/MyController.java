@@ -14,16 +14,25 @@ import java.util.ResourceBundle;
 
 import java.util.Scanner;
 
+import application.CodeReader;
 import application.ValueClass;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.concurrent.Task;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewFocusModel;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 //import javafx.scene.control.TextField;
@@ -32,6 +41,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 //import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import javafx.util.Callback;
 
 
 
@@ -42,35 +52,80 @@ public class MyController implements Initializable{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	TableColumn<ValueClass, String> col1;
+	TableColumn<ValueClass, String> col2;
+	TableColumn<ValueClass, String> col3;
+	CodeReader codeReader = new CodeReader();
+	ObservableList<ValueClass> data = FXCollections.observableArrayList();
+	
+	
+	private Window stage;	
 
 	@FXML
 	private Button btnFoo;
 	
 	@FXML
-	private TableView<ValueClass> tableView; 
+	public TableView<ValueClass> tableView; 
 	
 	@FXML
 	private Label txtBar;
 	//private TextFlow txtField;
 	@FXML
 	private TextArea txtCode;
-
-
-	private Window stage;
 	
-
 	
 	//Beim Klicken auf btnFoo, ChangeText Methode ändern den Text in txtBar
 	public void StartProgramm(ActionEvent event){
-		String zeile = txtCode.getText(0, 10);
-		System.out.println(zeile);
+		
+		
+		
+
+		Task<Integer> task = new Task<Integer>() {
+		    @Override protected Integer call() throws Exception {
+		    while(true){
+				if(!col1.getCellData(codeReader.getLine()).equals("")){
+					if(Integer.parseInt(col1.getCellData(codeReader.getLine()),16)==codeReader.getPc()){
+						//Highlight
+						tableView.getSelectionModel().select(codeReader.getLine());
+						
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						//Code übergeben
+						codeReader.setCode(col2.getCellData(codeReader.getLine()));
+						codeReader.read();
+						//break;
+				}	
+				}
+				codeReader.increaseLine();
+				if(codeReader.getLine()>=50)break;
+				
+			}
+		    	
+		        return codeReader.getLine();
+		    }
+		    
+		};
+		
+		Thread th = new Thread(task);
+
+		th.setDaemon(true);
+
+		th.start();
+	
+				
+		
 		
 	}
 	
 	//Beim Klicken soll der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
 		
-		ObservableList<ValueClass> data = FXCollections.observableArrayList();
+		
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Öffne Datei");
@@ -99,13 +154,13 @@ public class MyController implements Initializable{
                 }
         }  
         // Spaltendefinition
-        TableColumn<ValueClass, String> col1 = new TableColumn<ValueClass, String>("PC");        
+        col1 = new TableColumn<ValueClass, String>("PC");        
         col1.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column1"));
 
-        TableColumn<ValueClass, String> col2 = new TableColumn<ValueClass, String>("Code");
+        col2 = new TableColumn<ValueClass, String>("Code");
         col2.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column2"));
 
-        TableColumn<ValueClass, String> col3 = new TableColumn<ValueClass, String>("Text");
+        col3 = new TableColumn<ValueClass, String>("Text");
         col3.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column3"));
         
         col1.setEditable(false);

@@ -1,7 +1,7 @@
 package application;
 
 public class ValueClass {
-	 private String  column1;
+	  private String  column1;
 	  private String column2;
 	  private String column3;
 	  
@@ -19,7 +19,20 @@ public class ValueClass {
 	    this.column3 = column3;
 	  }
 
-	  public String getColumn1() {
+	
+	  public void setColumn1(String column1) {
+		this.column1 = column1;
+	}
+
+	public void setColumn2(String column2) {
+		this.column2 = column2;
+	}
+
+	public void setColumn3(String column3) {
+		this.column3 = column3;
+	}
+
+	public String getColumn1() {
 	    return column1;
 	  }
 
@@ -32,3 +45,5 @@ public class ValueClass {
 	  }
 
 }
+
+	
