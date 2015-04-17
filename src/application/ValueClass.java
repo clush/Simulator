@@ -1,7 +1,7 @@
 package application;
 
 public class ValueClass {
-	  private String  column1;
+	  private String column1;
 	  private String column2;
 	  private String column3;
 	  
