@@ -22,5 +22,7 @@
       <Button layoutX="119.0" layoutY="34.0" mnemonicParsing="false" onAction="#StopProgramm" text="Stop" />
       <Text layoutX="533.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="W-Register:" wrappingWidth="103.0390625" />
       <Text fx:id="txt_wRegister" layoutX="636.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="57.13671875" />
+      <Button fx:id="btn_Step" layoutX="169.0" layoutY="34.0" mnemonicParsing="false" onAction="#Steps" text="Steps" />
+      <Button fx:id="btntest" layoutX="223.0" layoutY="34.0" mnemonicParsing="false" onAction="#Test" text="Test" />
    </children>
 </AnchorPane>

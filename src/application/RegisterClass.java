@@ -26,12 +26,12 @@ public class RegisterClass {
 		
 	}
 	
-	public void setSpalten(int x,String wert) {
-		this.spalten[x] = wert;
+	public void setSpalten(int x,int wert) {
+		this.spalten[x] = Integer.toHexString(wert);
 	}
 	
-	public String getSpalten(int x) {
-		return spalten[x];
+	public int getSpalten(int x) {
+		return Integer.parseInt(spalten[x],16);
 	}
 
 	public String getBeschriftung() {

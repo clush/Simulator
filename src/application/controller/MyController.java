@@ -170,6 +170,26 @@ public class MyController implements Initializable{
 	private Button btnFoo;
 	
 	@FXML
+	private Button btntest;
+	
+	public void Test(ActionEvent event){
+		codeReader.setwRegister(2);		
+		//codeReader.setRegister(3, 0, 255); //Bank wechseln
+		codeReader.setRegister(1, 1, 7);
+		codeReader.setCode("0A91");
+		
+		
+		
+		codeReader.read();
+		refreshRegister();
+        txt_wRegister.setText(codeReader.getwRegister());
+		
+	}
+	
+	@FXML
+	private Button btn_Step;
+	
+	@FXML
 	private Text txt_wRegister;
 	
 	@FXML
@@ -231,7 +251,36 @@ public class MyController implements Initializable{
 		th.start();			
 		
 	}
+	
+	public void Steps(ActionEvent event)  {
+		while(true){
+			if(!col1.getCellData(codeReader.getLine()).equals("")){
+				if(Integer.parseInt(col1.getCellData(codeReader.getLine()),16)==codeReader.getPc()){
+					//Highlight
+					tableView.getSelectionModel().select(codeReader.getLine());
+											
+					//Code übergeben
+					codeReader.setCode(col2.getCellData(codeReader.getLine()));
+					codeReader.read();
+					refreshRegister();
+                    txt_wRegister.setText(codeReader.getwRegister());
+					//System.out.println(registerSpalte4.getCellData(0));
+					break;
+					/*Platform.runLater(new Runnable() {
+	                     @Override public void run() {
+	                         refreshRegister();
+	                         txt_wRegister.setText(codeReader.getwRegister());
+	                         
+	                     }
+	                 });*/
+				}	
+			}
+			codeReader.increaseLine();
+		}
+		
+	}
 
+	@SuppressWarnings("deprecation")
 	public void StopProgramm(ActionEvent event){
 		th.stop();	
 		refreshRegister();
