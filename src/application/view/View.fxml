@@ -8,17 +8,19 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="650.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.MyController">
+<AnchorPane prefHeight="650.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.MyController">
    <children>
       <Button fx:id="btnFoo" layoutX="70.0" layoutY="34.0" mnemonicParsing="false" onAction="#StartProgramm" text="Start" />
       <Label fx:id="txtBar" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="261.0" text="© Claus Burkhart and Thomas Coenen" />
-      <TableView fx:id="tableView" layoutX="14.0" layoutY="66.0" prefHeight="363.0" prefWidth="441.0">
+      <TableView fx:id="tableView" layoutX="14.0" layoutY="66.0" prefHeight="363.0" prefWidth="501.0">
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
       <Button fx:id="btnInsert" layoutX="14.0" layoutY="34.0" mnemonicParsing="false" onAction="#InsertText" text="Open" />
-      <TableView fx:id="table" layoutX="15.0" layoutY="441.0" prefHeight="180.0" prefWidth="625.0" />
+      <TableView fx:id="table" layoutX="15.0" layoutY="441.0" prefHeight="180.0" prefWidth="501.0" />
       <Button layoutX="119.0" layoutY="34.0" mnemonicParsing="false" onAction="#StopProgramm" text="Stop" />
+      <Text layoutX="533.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="W-Register:" wrappingWidth="103.0390625" />
+      <Text fx:id="txt_wRegister" layoutX="636.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="57.13671875" />
    </children>
 </AnchorPane>

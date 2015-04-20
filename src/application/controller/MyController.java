@@ -18,6 +18,7 @@ import java.util.Scanner;
 import application.CodeReader;
 import application.RegisterClass;
 import application.ValueClass;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -40,6 +41,7 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView.TableViewFocusModel;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 //import javafx.scene.control.TextField;
 //import javafx.scene.text.TextAlignment;
 //import javafx.scene.text.TextFlow;
@@ -48,23 +50,89 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.Callback;
 
-
-
 public class MyController implements Initializable{
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		 	codeReader.initRegister();
+	        registerBeschriftung = new TableColumn<RegisterClass, String>("");        
+	        registerBeschriftung.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("beschriftung"));
+	        registerBeschriftung.setStyle("-fx-background-color: #DFDFDF");
+	        
+	        registerSpalte0 = new TableColumn<RegisterClass, String>("0");        
+	        registerSpalte0.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte0"));
+	        
+	        registerSpalte1 = new TableColumn<RegisterClass, String>("1");        
+	        registerSpalte1.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte1"));
+	        
+	        registerSpalte2 = new TableColumn<RegisterClass, String>("2");        
+	        registerSpalte2.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte2"));
+	        
+	        registerSpalte3 = new TableColumn<RegisterClass, String>("3");        
+	        registerSpalte3.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte3"));
+	        
+	        registerSpalte4 = new TableColumn<RegisterClass, String>("4");        
+	        registerSpalte4.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte4"));
+	        
+	        registerSpalte5 = new TableColumn<RegisterClass, String>("5");        
+	        registerSpalte5.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte5"));
+	        
+	        registerSpalte6 = new TableColumn<RegisterClass, String>("6");        
+	        registerSpalte6.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte6"));
+	        
+	        registerSpalte7 = new TableColumn<RegisterClass, String>("7");        
+	        registerSpalte7.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte7"));
+	        
+	        registerSpalte8 = new TableColumn<RegisterClass, String>("8");        
+	        registerSpalte8.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte8"));
+	        
+	        registerSpalte9 = new TableColumn<RegisterClass, String>("9");        
+	        registerSpalte9.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte9"));
+	        
+	        registerSpalteA = new TableColumn<RegisterClass, String>("A");        
+	        registerSpalteA.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteA"));
+	        
+	        registerSpalteB = new TableColumn<RegisterClass, String>("B");        
+	        registerSpalteB.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteB"));
+	        
+	        registerSpalteC = new TableColumn<RegisterClass, String>("C");        
+	        registerSpalteC.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteC"));
+	        
+	        registerSpalteD = new TableColumn<RegisterClass, String>("D");        
+	        registerSpalteD.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteD"));
+	        
+	        registerSpalteE = new TableColumn<RegisterClass, String>("E");        
+	        registerSpalteE.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteE"));
+	        
+	        registerSpalteF = new TableColumn<RegisterClass, String>("F");        
+	        registerSpalteF.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteF"));
+	        
+	     // Tabellenerzeugung	        
+	        
+	        refreshRegister();
+	        
+	        /*table.getColumns().add(registerBeschriftung);
+	        table.getColumns().add(registerSpalte0);
+	        table.getColumns().add(registerSpalte1);
+	        table.getColumns().add(registerSpalte2);
+	        table.getColumns().add(registerSpalte3);
+	        table.getColumns().add(registerSpalte4);
+	        table.getColumns().add(registerSpalte5);
+	        table.getColumns().add(registerSpalte6);
+	        table.getColumns().add(registerSpalte7);
+	        table.getColumns().add(registerSpalte8);
+	        table.getColumns().add(registerSpalte9);
+	        table.getColumns().add(registerSpalteA);
+	        table.getColumns().add(registerSpalteB);
+	        table.getColumns().add(registerSpalteC);
+	        table.getColumns().add(registerSpalteD);
+	        table.getColumns().add(registerSpalteE);
+	        table.getColumns().add(registerSpalteF);
+	        table.setItems(codeReader.getDataRegister());*/
 		
 	}
 	
-	TableColumn<ValueClass, String> col1;
-	TableColumn<ValueClass, String> col2;
-	TableColumn<ValueClass, String> col3;
-	CodeReader codeReader = new CodeReader();
-	ObservableList<ValueClass> data = FXCollections.observableArrayList();
-	
-	ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
+// Initialisierung der Variablen
 	
 	TableColumn<RegisterClass, String> registerBeschriftung;
 	TableColumn<RegisterClass, String> registerSpalte0;
@@ -75,6 +143,23 @@ public class MyController implements Initializable{
 	TableColumn<RegisterClass, String> registerSpalte5;
 	TableColumn<RegisterClass, String> registerSpalte6;
 	TableColumn<RegisterClass, String> registerSpalte7;
+	TableColumn<RegisterClass, String> registerSpalte8;
+	TableColumn<RegisterClass, String> registerSpalte9;
+	TableColumn<RegisterClass, String> registerSpalteA;
+	TableColumn<RegisterClass, String> registerSpalteB;
+	TableColumn<RegisterClass, String> registerSpalteC;
+	TableColumn<RegisterClass, String> registerSpalteD;
+	TableColumn<RegisterClass, String> registerSpalteE;
+	TableColumn<RegisterClass, String> registerSpalteF;
+	
+	@FXML
+	public TableView<RegisterClass> table;
+	
+	TableColumn<ValueClass, String> col1;
+	TableColumn<ValueClass, String> col2;
+	TableColumn<ValueClass, String> col3;
+	CodeReader codeReader = new CodeReader();
+	ObservableList<ValueClass> data = FXCollections.observableArrayList();
 	
 	Task<Integer> task;
 	Thread th;	
@@ -85,10 +170,10 @@ public class MyController implements Initializable{
 	private Button btnFoo;
 	
 	@FXML
-	public TableView<ValueClass> tableView; 
+	private Text txt_wRegister;
 	
 	@FXML
-	public TableView<RegisterClass> table; 
+	public TableView<ValueClass> tableView; 
 	
 	@FXML
 	private Label txtBar;
@@ -98,25 +183,9 @@ public class MyController implements Initializable{
 	
 	
 //Beim Klicken auf Start, startet programm
-	public void StartProgramm(ActionEvent event){
-		
-		dataRegister.get(0).setSpalten(4, "test");
-		
-// Refresh table		
-		table.getColumns().clear();
-		table.getColumns().add(registerBeschriftung);
-        table.getColumns().add(registerSpalte0);
-        table.getColumns().add(registerSpalte1);
-        table.getColumns().add(registerSpalte2);
-        table.getColumns().add(registerSpalte3);
-        table.getColumns().add(registerSpalte4);
-        table.getColumns().add(registerSpalte5);
-        table.getColumns().add(registerSpalte6);
-        table.getColumns().add(registerSpalte7);
-		
-		System.out.println(dataRegister.get(0).getSpalten(4));
-		
+	public void StartProgramm(ActionEvent event){		
 
+		
 		task = new Task<Integer>() {
 		    @Override protected Integer call() throws Exception {
 		    while(true){
@@ -124,9 +193,9 @@ public class MyController implements Initializable{
 					if(Integer.parseInt(col1.getCellData(codeReader.getLine()),16)==codeReader.getPc()){
 						//Highlight
 						tableView.getSelectionModel().select(codeReader.getLine());
-						
+												
 						try {
-							Thread.sleep(500);
+							Thread.sleep(500);							
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -134,7 +203,15 @@ public class MyController implements Initializable{
 						//Code übergeben
 						codeReader.setCode(col2.getCellData(codeReader.getLine()));
 						codeReader.read();
+						//System.out.println(registerSpalte4.getCellData(0));
 						//break;
+						Platform.runLater(new Runnable() {
+		                     @Override public void run() {
+		                         refreshRegister();
+		                         txt_wRegister.setText(codeReader.getwRegister());
+		                         
+		                     }
+		                 });
 					}	
 				}
 				codeReader.increaseLine();
@@ -151,21 +228,19 @@ public class MyController implements Initializable{
 
 		th.setDaemon(true);
 
-		th.start();		
+		th.start();			
 		
 	}
 
 	public void StopProgramm(ActionEvent event){
 		th.stop();	
+		refreshRegister();
 	}
 //Beim Klicken soll der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
 
-//vorherige Tabelleninhalte löschen
-		
-		tableView.getColumns().clear();
-		table.getColumns().clear();
-		
+//vorherige Tabelleninhalte löschen		
+		tableView.getColumns().clear();				
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Öffne Datei");
@@ -226,43 +301,13 @@ public class MyController implements Initializable{
         tableView.getColumns().add(col3);
         
 //Register
-        for (int i=0;i<=32;i++){
-        	dataRegister.add(new RegisterClass("00","00","00","00","00","00","00","00",Integer.toHexString(i*8)));
-        }
-        
-        
-        registerBeschriftung = new TableColumn<RegisterClass, String>("");        
-        registerBeschriftung.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("beschriftung"));
-        registerBeschriftung.setStyle("-fx-background-color: #DFDFDF");
-        
-        registerSpalte0 = new TableColumn<RegisterClass, String>("00");        
-        registerSpalte0.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte0"));
-        
-        registerSpalte1 = new TableColumn<RegisterClass, String>("01");        
-        registerSpalte1.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte1"));
-        
-        registerSpalte2 = new TableColumn<RegisterClass, String>("02");        
-        registerSpalte2.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte2"));
-        
-        registerSpalte3 = new TableColumn<RegisterClass, String>("03");        
-        registerSpalte3.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte3"));
-        
-        registerSpalte4 = new TableColumn<RegisterClass, String>("04");        
-        registerSpalte4.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte4"));
-        
-        registerSpalte5 = new TableColumn<RegisterClass, String>("05");        
-        registerSpalte5.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte5"));
-        
-        registerSpalte6 = new TableColumn<RegisterClass, String>("06");        
-        registerSpalte6.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte6"));
-        
-        registerSpalte7 = new TableColumn<RegisterClass, String>("07");        
-        registerSpalte7.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte7"));
-        
-     // Tabellenerzeugung
-        
-        
-        table.getColumns().add(registerBeschriftung);
+       
+	}
+	
+	void refreshRegister(){
+		table.setItems(codeReader.getDataRegister());
+		table.getColumns().clear();
+		table.getColumns().add(registerBeschriftung);
         table.getColumns().add(registerSpalte0);
         table.getColumns().add(registerSpalte1);
         table.getColumns().add(registerSpalte2);
@@ -271,12 +316,17 @@ public class MyController implements Initializable{
         table.getColumns().add(registerSpalte5);
         table.getColumns().add(registerSpalte6);
         table.getColumns().add(registerSpalte7);
-        table.setItems(dataRegister);
-        
-     }
+        table.getColumns().add(registerSpalte8);
+        table.getColumns().add(registerSpalte9);
+        table.getColumns().add(registerSpalteA);
+        table.getColumns().add(registerSpalteB);
+        table.getColumns().add(registerSpalteC);
+        table.getColumns().add(registerSpalteD);
+        table.getColumns().add(registerSpalteE);
+        table.getColumns().add(registerSpalteF);
+       
 		
-		 
-	
+	}
 	
 	
 }
