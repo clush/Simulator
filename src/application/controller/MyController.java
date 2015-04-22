@@ -173,14 +173,26 @@ public class MyController implements Initializable{
 	private Button btntest;
 	
 	public void Test(ActionEvent event){
-		codeReader.setwRegister(2);		
-		//codeReader.setRegister(3, 0, 255); //Bank wechseln
-		codeReader.setRegister(1, 1, 7);
-		codeReader.setCode("0A91");
+		codeReader.setwRegister(38);		
+		codeReader.setRegister(3, 0, 32); //Bank wechseln
+		codeReader.setRegister(1, 1, 38);
+		codeReader.setRegister(2, 4, 7);
+		codeReader.read("1683");
+		codeReader.read("0086");
+		codeReader.read("1283");
+		
+		/*switch (a){
+		case 0: System.out.println("Alles in Butter"); break;
+		case 1: System.out.println("Code nicht zulässig"); break;
+		case 2: System.out.println("SLEEP");break;
+		
+		default: System.out.println("Unzulässiger Rückgabewert"); 
+		
+		}*/
 		
 		
 		
-		codeReader.read();
+		//Refresh View
 		refreshRegister();
         txt_wRegister.setText(codeReader.getwRegister());
 		
@@ -209,20 +221,19 @@ public class MyController implements Initializable{
 		task = new Task<Integer>() {
 		    @Override protected Integer call() throws Exception {
 		    while(true){
-				if(!col1.getCellData(codeReader.getLine()).equals("")){
-					if(Integer.parseInt(col1.getCellData(codeReader.getLine()),16)==codeReader.getPc()){
+				if(!col1.getCellData(codeReader.getTextLine()).equals("")){
+					if(Integer.parseInt(col1.getCellData(codeReader.getTextLine()),16)==codeReader.getPc()){
 						//Highlight
-						tableView.getSelectionModel().select(codeReader.getLine());
+						tableView.getSelectionModel().select(codeReader.getTextLine());
 												
 						try {
-							Thread.sleep(500);							
+							Thread.sleep(100);							
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						//Code übergeben
-						codeReader.setCode(col2.getCellData(codeReader.getLine()));
-						codeReader.read();
+						//Code übergeben und ausführen
+						codeReader.read(col2.getCellData(codeReader.getTextLine()));
 						//System.out.println(registerSpalte4.getCellData(0));
 						//break;
 						Platform.runLater(new Runnable() {
@@ -235,11 +246,11 @@ public class MyController implements Initializable{
 					}	
 				}
 				codeReader.increaseLine();
-				if(codeReader.getLine()>=50)break;
+				if(col1.getCellData(codeReader.getTextLine())==null)break;
 				
 			}
 		    	
-		        return codeReader.getLine();
+		        return codeReader.getTextLine();
 		    }
 		    
 		};
@@ -254,14 +265,13 @@ public class MyController implements Initializable{
 	
 	public void Steps(ActionEvent event)  {
 		while(true){
-			if(!col1.getCellData(codeReader.getLine()).equals("")){
-				if(Integer.parseInt(col1.getCellData(codeReader.getLine()),16)==codeReader.getPc()){
+			if(!col1.getCellData(codeReader.getTextLine()).equals("")){
+				if(Integer.parseInt(col1.getCellData(codeReader.getTextLine()),16)==codeReader.getPc()){
 					//Highlight
-					tableView.getSelectionModel().select(codeReader.getLine());
+					tableView.getSelectionModel().select(codeReader.getTextLine());
 											
-					//Code übergeben
-					codeReader.setCode(col2.getCellData(codeReader.getLine()));
-					codeReader.read();
+					//Code übergeben und ausführen
+					codeReader.read(col2.getCellData(codeReader.getTextLine()));
 					refreshRegister();
                     txt_wRegister.setText(codeReader.getwRegister());
 					//System.out.println(registerSpalte4.getCellData(0));
