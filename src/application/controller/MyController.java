@@ -5,50 +5,30 @@ package application.controller;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ResourceBundle;
-
-
-import java.util.Scanner;
-
 import application.CodeReader;
 import application.RegisterClass;
 import application.ValueClass;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
-import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableView.TableViewFocusModel;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
-//import javafx.scene.control.TextField;
-//import javafx.scene.text.TextAlignment;
-//import javafx.scene.text.TextFlow;
-//import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javafx.util.Callback;
+
 
 public class MyController implements Initializable{
 
@@ -110,26 +90,7 @@ public class MyController implements Initializable{
 	     // Tabellenerzeugung	        
 	        
 	        refreshRegister();
-	        
-	        /*table.getColumns().add(registerBeschriftung);
-	        table.getColumns().add(registerSpalte0);
-	        table.getColumns().add(registerSpalte1);
-	        table.getColumns().add(registerSpalte2);
-	        table.getColumns().add(registerSpalte3);
-	        table.getColumns().add(registerSpalte4);
-	        table.getColumns().add(registerSpalte5);
-	        table.getColumns().add(registerSpalte6);
-	        table.getColumns().add(registerSpalte7);
-	        table.getColumns().add(registerSpalte8);
-	        table.getColumns().add(registerSpalte9);
-	        table.getColumns().add(registerSpalteA);
-	        table.getColumns().add(registerSpalteB);
-	        table.getColumns().add(registerSpalteC);
-	        table.getColumns().add(registerSpalteD);
-	        table.getColumns().add(registerSpalteE);
-	        table.getColumns().add(registerSpalteF);
-	        table.setItems(codeReader.getDataRegister());*/
-		
+	        		
 	}
 	
 // Initialisierung der Variablen
@@ -155,6 +116,7 @@ public class MyController implements Initializable{
 	@FXML
 	public TableView<RegisterClass> table;
 	
+	TableColumn<ValueClass, String> col0;
 	TableColumn<ValueClass, String> col1;
 	TableColumn<ValueClass, String> col2;
 	TableColumn<ValueClass, String> col3;
@@ -173,13 +135,14 @@ public class MyController implements Initializable{
 	private Button btntest;
 	
 	public void Test(ActionEvent event){
-		codeReader.setwRegister(38);		
-		codeReader.setRegister(3, 0, 32); //Bank wechseln
-		codeReader.setRegister(1, 1, 38);
-		codeReader.setRegister(2, 4, 7);
-		codeReader.read("1683");
-		codeReader.read("0086");
-		codeReader.read("1283");
+		//codeReader.setwRegister(38);		
+		//codeReader.setRegister(3, 0, 32); //Bank wechseln
+		//codeReader.setRegister(1, 1, 38);
+		//codeReader.setRegister(3, 4, 7);
+		//codeReader.read("1683");
+		
+		codeReader.setBit(6, 0, 0);		
+		//System.out.println(data.get(2).getColumn0().selectedProperty().get());
 		
 		/*switch (a){
 		case 0: System.out.println("Alles in Butter"); break;
@@ -188,9 +151,7 @@ public class MyController implements Initializable{
 		
 		default: System.out.println("Unzulässiger Rückgabewert"); 
 		
-		}*/
-		
-		
+		}*/		
 		
 		//Refresh View
 		refreshRegister();
@@ -213,6 +174,7 @@ public class MyController implements Initializable{
 	@FXML
 	private TextArea txtCode;
 	
+	private int focusLine = 0;
 	
 //Beim Klicken auf Start, startet programm
 	public void StartProgramm(ActionEvent event){		
@@ -223,9 +185,18 @@ public class MyController implements Initializable{
 		    while(true){
 				if(!col1.getCellData(codeReader.getTextLine()).equals("")){
 					if(Integer.parseInt(col1.getCellData(codeReader.getTextLine()),16)==codeReader.getPc()){
-						//Highlight
-						tableView.getSelectionModel().select(codeReader.getTextLine());
-												
+						
+						 //Highlight and Focus
+ 						tableView.getSelectionModel().select(codeReader.getTextLine());
+ 						tableView.getFocusModel().focus(codeReader.getTextLine());
+ 						
+ 						if(!(codeReader.getTextLine()>=focusLine 
+ 								&& codeReader.getTextLine()<= focusLine + 12)) focusLine = codeReader.getTextLine()-6;
+ 						//Breakpoint abfragen
+ 						
+ 						if (data.get(codeReader.getTextLine()).getColumn0().
+ 								selectedProperty().get())break;
+ 							
 						try {
 							Thread.sleep(100);							
 						} catch (InterruptedException e) {
@@ -239,7 +210,8 @@ public class MyController implements Initializable{
 						Platform.runLater(new Runnable() {
 		                     @Override public void run() {
 		                         refreshRegister();
-		                         txt_wRegister.setText(codeReader.getwRegister());
+		                         txt_wRegister.setText(codeReader.getwRegister());		                      
+		 						 tableView.scrollTo(focusLine);
 		                         
 		                     }
 		                 });
@@ -329,25 +301,28 @@ public class MyController implements Initializable{
                 }
         }  
  // Spaltendefinition
+        
+        col0 = new TableColumn<ValueClass, String>("BP");        
+        col0.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column0"));
+        col0.setMinWidth(22);
+        col0.setMaxWidth(22);
+        
         col1 = new TableColumn<ValueClass, String>("PC");        
         col1.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column1"));
-
-        col2 = new TableColumn<ValueClass, String>("Code");
-        col2.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column2"));
-
-        col3 = new TableColumn<ValueClass, String>("Text");
-        col3.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column3"));
-        
         col1.setEditable(false);
         col1.setSortable(false);
         col1.setMinWidth(40);
         col1.setMaxWidth(40);
         
+        col2 = new TableColumn<ValueClass, String>("Code");
+        col2.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column2"));
         col2.setEditable(false);
         col2.setSortable(false);
         col2.setMinWidth(40);
         col2.setMaxWidth(40);
         
+        col3 = new TableColumn<ValueClass, String>("Text");
+        col3.setCellValueFactory(new PropertyValueFactory<ValueClass, String>("column3"));
         col3.setEditable(false);
         col3.setSortable(false);
         col3.setMinWidth(40);
@@ -355,6 +330,7 @@ public class MyController implements Initializable{
 // Tabellenerzeugung
                 
         tableView.setItems(data);
+        tableView.getColumns().add(col0);
         tableView.getColumns().add(col1);
         tableView.getColumns().add(col2);
         tableView.getColumns().add(col3);

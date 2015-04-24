@@ -620,7 +620,7 @@ public class CodeReader {
 	}
 
 	private void setPc(int pc) {
-		this.pc = pc & 0xFF;
+		this.pc = pc;
 		//in entsprechenden Registern speichern
 		setRegister(2, 0, pc);
 		setRegister(2, 8, pc);
@@ -669,7 +669,7 @@ public class CodeReader {
 		
 	}
 	
-	private boolean bitTest(int x, int y, int bit){
+	public boolean bitTest(int x, int y, int bit){
 		/*
 		 * Diese Methode liefert true zurück wenn das übergebene Bit 
 		 * gesetzt ist und false wenn nicht.		
@@ -678,8 +678,16 @@ public class CodeReader {
 		if((getRegister(x,y) & mask(bit)) == mask(bit))
 			return true;
 		else return false;
+	}	
+	
+	
+	public void setBit(int x,int y, int bit){
+		setRegister(x,y,getRegister(x,y) | mask(bit));
 	}
 	
+	public void clearBit(int x,int y, int bit){
+		setRegister(x,y,getRegister(x,y) & (mask(bit)^0xFF));
+	}
 	
 	public void setRegister(int x, int y, int wert){
 		
@@ -701,16 +709,6 @@ public class CodeReader {
 			y = (getRegister(4,0)&0xF0)/16;
 		}
 		return this.dataRegister.get(y).getSpalten(x);
-	}
-	
-	
-	
-	private void setBit(int x,int y, int bit){
-		setRegister(x,y,getRegister(x,y) | mask(bit));
-	}
-	
-	private void clearBit(int x,int y, int bit){
-		setRegister(x,y,getRegister(x,y) & (mask(bit)^0xFF));
 	}
 	
 	private int mask(int bit){

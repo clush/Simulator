@@ -1,10 +1,13 @@
 package application;
 
+import javafx.scene.control.CheckBox;
+
 public class ValueClass {
+	  private CheckBox column0;
 	  private String column1;
 	  private String column2;
 	  private String column3;
-	  
+	    
 
 
 	  @Override
@@ -14,13 +17,18 @@ public class ValueClass {
 	}
 
 	public ValueClass(String column1, String column2, String column3) {
-	    this.column1 = column1;
+	    this.column0 = new CheckBox();
+		this.column1 = column1;
 	    this.column2 = column2;
 	    this.column3 = column3;
 	  }
 
 	
-	  public void setColumn1(String column1) {
+	public void setColumn0(CheckBox column0) {
+		this.column0 = column0;
+	}
+
+	public void setColumn1(String column1) {
 		this.column1 = column1;
 	}
 
@@ -32,6 +40,11 @@ public class ValueClass {
 		this.column3 = column3;
 	}
 
+	public CheckBox getColumn0() {
+			return column0;
+		}
+	
+	
 	public String getColumn1() {
 	    return column1;
 	  }
