@@ -35,7 +35,10 @@ public class MyController implements Initializable{
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		 	codeReader.initRegister();
-	        registerBeschriftung = new TableColumn<RegisterClass, String>("");        
+	        
+	//Registerspalten definieren
+		 	
+		 	registerBeschriftung = new TableColumn<RegisterClass, String>("");        
 	        registerBeschriftung.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("beschriftung"));
 	        registerBeschriftung.setStyle("-fx-background-color: #DFDFDF");
 	        
@@ -89,11 +92,11 @@ public class MyController implements Initializable{
 	        
 	     // Tabellenerzeugung	        
 	        
-	        refreshRegister();
+	        refreshView();
 	        		
 	}
 	
-// Initialisierung der Variablen
+// Initialisierung der Registerspalten
 	
 	TableColumn<RegisterClass, String> registerBeschriftung;
 	TableColumn<RegisterClass, String> registerSpalte0;
@@ -113,6 +116,7 @@ public class MyController implements Initializable{
 	TableColumn<RegisterClass, String> registerSpalteE;
 	TableColumn<RegisterClass, String> registerSpalteF;
 	
+// Initialisierung der Registerspalten der TableView zum anzeigen der Datei
 	@FXML
 	public TableView<RegisterClass> table;
 	
@@ -123,14 +127,17 @@ public class MyController implements Initializable{
 	CodeReader codeReader = new CodeReader();
 	ObservableList<ValueClass> data = FXCollections.observableArrayList();
 	
-	Task<Integer> task;
+	Task<Integer> taskRun;
 	Thread th;	
 	
 	private Window stage;	
 
-	@FXML
-	private Button btnFoo;
+//Initialisierung der Buttons
 	
+	@FXML
+	private Button btnStart;
+
+	//Button um einzelne Operationen zu testen	
 	@FXML
 	private Button btntest;
 	
@@ -154,7 +161,7 @@ public class MyController implements Initializable{
 		}*/		
 		
 		//Refresh View
-		refreshRegister();
+		refreshView();
         txt_wRegister.setText(codeReader.getwRegister());
 		
 	}
@@ -175,104 +182,127 @@ public class MyController implements Initializable{
 	private TextArea txtCode;
 	
 	private int focusLine = 0;
+	private int textLine=0;
 	
-//Beim Klicken auf Start, startet programm
-	public void StartProgramm(ActionEvent event){		
-
-		
-		task = new Task<Integer>() {
-		    @Override protected Integer call() throws Exception {
-		    while(true){
-				if(!col1.getCellData(codeReader.getTextLine()).equals("")){
-					if(Integer.parseInt(col1.getCellData(codeReader.getTextLine()),16)==codeReader.getPc()){
+	public void RunProgram(boolean steps, int geschwindigkeit){
+		 while(true){
+				if(!col1.getCellData(textLine).equals("")){
+					if(Integer.parseInt(col1.getCellData(textLine),16)==codeReader.getPc()){
 						
-						 //Highlight and Focus
- 						tableView.getSelectionModel().select(codeReader.getTextLine());
- 						tableView.getFocusModel().focus(codeReader.getTextLine());
- 						
- 						if(!(codeReader.getTextLine()>=focusLine 
- 								&& codeReader.getTextLine()<= focusLine + 12)) focusLine = codeReader.getTextLine()-6;
- 						//Breakpoint abfragen
- 						
- 						if (data.get(codeReader.getTextLine()).getColumn0().
- 								selectedProperty().get())break;
- 							
+						 //Highlight
+						tableView.getSelectionModel().select(textLine);
+						//FocusLine berechnen 						
+						if(!(textLine>=focusLine 
+								&& textLine<= focusLine + 12)) focusLine = textLine-6;
+						
+						//Breakpoint abfragen 						
+						if (data.get(textLine).getColumn0().
+								selectedProperty().get())break;
+						
+						//Sleep Funktion um Geschwindigkeit zu regeln
 						try {
-							Thread.sleep(100);							
+							Thread.sleep(geschwindigkeit);							
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						//Code übergeben und ausführen
-						codeReader.read(col2.getCellData(codeReader.getTextLine()));
-						//System.out.println(registerSpalte4.getCellData(0));
-						//break;
+						
+						//Code an codeReader übergeben und Rückgabewert auswerten 
+						
+						int rueck = codeReader.read(col2.getCellData(textLine));
+						
+						if (rueck==0){			//Alles in Butter
+							
+						}			
+						else if (rueck==1) {	//Code nicht bekannt
+							System.out.println("Code nicht bekannt");
+							break;
+						} else if (rueck==2) {	//Sleep
+							break;
+						} else if (rueck==3) {	//Sprung
+							
+						}
+						
+						//View refresh
 						Platform.runLater(new Runnable() {
 		                     @Override public void run() {
-		                         refreshRegister();
-		                         txt_wRegister.setText(codeReader.getwRegister());		                      
-		 						 tableView.scrollTo(focusLine);
-		                         
+		                         refreshView();  
+		                        
 		                     }
 		                 });
+						
+						// Abfragen, ob nur ein Schritt ausgeführt werden soll.
+						if(steps){
+							textLine = 0;
+							break;
+						}else{
+						/*Text wieder ab Zeile 0 durchsuchen:  
+						 * deshalb auf -1 setzen, da textLine anschließend noch um 1 erhöht wird.
+						 */
+						textLine = -1;
+						}
 					}	
 				}
-				codeReader.increaseLine();
-				if(col1.getCellData(codeReader.getTextLine())==null)break;
+				textLine++;
+				if(col1.getCellData(textLine)==null)break;
 				
 			}
+	}
+	
+
+//Beim Klicken auf Start, startet programm
+	public void StartProgramm(ActionEvent event){		
+		
+		taskRun = new Task<Integer>() {
+		    @Override protected Integer call() throws Exception {
+		    	RunProgram(false, 80);		   
 		    	
-		        return codeReader.getTextLine();
+		        return textLine;
 		    }
 		    
 		};
 		
-		th = new Thread(task);
-
+		th = new Thread(taskRun);
 		th.setDaemon(true);
-
 		th.start();			
 		
 	}
-	
+
+//Beim Klicken auf Steps wird genau eine Operation ausgeführt
 	public void Steps(ActionEvent event)  {
-		while(true){
-			if(!col1.getCellData(codeReader.getTextLine()).equals("")){
-				if(Integer.parseInt(col1.getCellData(codeReader.getTextLine()),16)==codeReader.getPc()){
-					//Highlight
-					tableView.getSelectionModel().select(codeReader.getTextLine());
-											
-					//Code übergeben und ausführen
-					codeReader.read(col2.getCellData(codeReader.getTextLine()));
-					refreshRegister();
-                    txt_wRegister.setText(codeReader.getwRegister());
-					//System.out.println(registerSpalte4.getCellData(0));
-					break;
-					/*Platform.runLater(new Runnable() {
-	                     @Override public void run() {
-	                         refreshRegister();
-	                         txt_wRegister.setText(codeReader.getwRegister());
-	                         
-	                     }
-	                 });*/
-				}	
-			}
-			codeReader.increaseLine();
-		}
+		taskRun = new Task<Integer>() {
+		    @Override protected Integer call() throws Exception {
+		    	RunProgram(true, 100);		   
+		    	
+		        return textLine;
+		    }
+		    
+		};
 		
+		th = new Thread(taskRun);
+		th.setDaemon(true);
+		th.start();	
 	}
 
+//Beim Klicken auf Stop wird das laufende Programm angehalten
 	@SuppressWarnings("deprecation")
 	public void StopProgramm(ActionEvent event){
 		th.stop();	
-		refreshRegister();
+		refreshView();
 	}
-//Beim Klicken soll der Inhalt der Textdatei eingefügt werden
+
+//Beim Klicken kann eine Datei ausgewählt werden und der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
 
 //vorherige Tabelleninhalte löschen		
-		tableView.getColumns().clear();				
+		tableView.getColumns().clear();	
+
+//Reset der Register
+		textLine = 0;
+		codeReader.resetRegister();
 		
+
+//Öffnen eines Fenster zum auswählen einer Datei
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Öffne Datei");
 		File file = fileChooser.showOpenDialog(stage);
@@ -333,13 +363,35 @@ public class MyController implements Initializable{
         tableView.getColumns().add(col0);
         tableView.getColumns().add(col1);
         tableView.getColumns().add(col2);
-        tableView.getColumns().add(col3);
+        tableView.getColumns().add(col3);    
         
-//Register
-       
+// View refreshen
+      //FocusLine berechnen 						
+		if(!(textLine>=focusLine 
+				&& textLine<= focusLine + 12)) focusLine = textLine-6;
+			
+        tableView.getSelectionModel().select(textLine);
+		refreshView();
+	}
+
+//Beim Klicken auf Reset werden alle Register zurückgesetzt
+	public void Reset(ActionEvent event){
+		//Reset der Register
+		textLine = 0;
+		codeReader.resetRegister();
+		// View refreshen
+		//FocusLine berechnen 						
+		if(!(textLine>=focusLine 
+				&& textLine<= focusLine + 12)) focusLine = textLine-6;
+			
+        tableView.getSelectionModel().select(textLine);
+		refreshView();
 	}
 	
-	void refreshRegister(){
+	
+//Methode, die nach jeder Änderung aufgerufen wird, um die View zu aktualisieren
+ 	public void refreshView(){
+	//Register			
 		table.setItems(codeReader.getDataRegister());
 		table.getColumns().clear();
 		table.getColumns().add(registerBeschriftung);
@@ -359,6 +411,10 @@ public class MyController implements Initializable{
         table.getColumns().add(registerSpalteD);
         table.getColumns().add(registerSpalteE);
         table.getColumns().add(registerSpalteF);
+    //W-Register
+        txt_wRegister.setText(codeReader.getwRegister());	
+    //Zu aktueller Zeile scrollen
+		tableView.scrollTo(focusLine);
        
 		
 	}

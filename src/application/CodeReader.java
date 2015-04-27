@@ -9,7 +9,6 @@ public class CodeReader {
 	
 	private int wRegister;
 	private int pc;
-	private int line;
 	private int Code;
 	private int[] stack = new int[8];
 	private int stackPointer;
@@ -17,7 +16,6 @@ public class CodeReader {
 		
 	public CodeReader() {
 		this.pc=0;
-		this.line=0;
 		this.Code=0;
 		this.stackPointer = 0;
 	}	
@@ -62,15 +60,15 @@ public class CodeReader {
 		
 		else if((Code & 0x3E00) == 0x3E00)ADDLW();
 		else if((Code & 0x3F00) == 0x3900)ANDLW();
-		else if((Code & 0x3800) == 0x2000)CALL();	//TODO PCLATH?
+		else if((Code & 0x3800) == 0x2000){CALL(); 		return 3;}	//TODO PCLATH?
 		else if((Code & 0x3FFF) == 0x0064)CLRWDT(); //TODO
-		else if((Code & 0x3800) == 0x2800)GOTO();   //TODO PCLATH?
+		else if((Code & 0x3800) == 0x2800){GOTO(); 		return 3;}   //TODO PCLATH?
 		else if((Code & 0x3F00) == 0x3800)IORLW();
 		else if((Code & 0x3C00) == 0x3000)MOVLW();
-		else if((Code & 0x3FFF) == 0x0009)RETFIE(); //TODO
-		else if((Code & 0x3C00) == 0x3400)RETLW();
-		else if((Code & 0x3FFF) == 0x0008)RETURN();
-		else if((Code & 0x3FFF) == 0x0063){SLEEP(); return 2;} //TODO: TO? PD? Rückgabewert in Whileschleife abfangen
+		else if((Code & 0x3FFF) == 0x0009){RETFIE(); 	return 3;} //TODO
+		else if((Code & 0x3C00) == 0x3400){RETLW(); 	return 3;}
+		else if((Code & 0x3FFF) == 0x0008){RETURN(); 	return 3;}
+		else if((Code & 0x3FFF) == 0x0063){SLEEP(); 	return 2;} //TODO: TO? PD? Rückgabewert in Whileschleife abfangen
 		else if((Code & 0x3E00) == 0x3C00)SUBLW();
 		else if((Code & 0x3F00) == 0x3A00)XORLW();
 	
@@ -78,25 +76,7 @@ public class CodeReader {
 		else{
 		increasePc();
 		return 1;
-		}
-		
-	//Gleichsetzen der Register, die auf beiden Bänken gleich sind
-		if (bitTest(3,0,5)){			
-			setRegister(0,0,getRegister(0,8)); //Indirekt address
-			setRegister(2,0,getRegister(2,8)); //PCL
-			setRegister(4,0,getRegister(4,8)); //FSR
-			setRegister(10,0,getRegister(10,8)); //PCLATH
-			setRegister(11,0,getRegister(11,8)); //INTCON			
-		}else{
-			setRegister(0,8,getRegister(0,0)); //Indirekt address
-			setRegister(2,8,getRegister(2,0)); //PCL
-			setRegister(4,8,getRegister(4,0)); //FSR
-			setRegister(10,8,getRegister(10,0)); //PCLATH
-			setRegister(11,8,getRegister(11,0)); //INTCON	
-		
-		}
-	
-				
+		}				
 	return 0;
 	}
 	
@@ -607,40 +587,38 @@ public class CodeReader {
 		return dataRegister;
 	}
 
-	public int getTextLine() {
-		return line;
-	}
-
-	public void increaseLine() {
-		this.line++;
-	}
 	
 	public int getPc() {
 		return pc;
 	}
 
 	private void setPc(int pc) {
-		this.pc = pc;
 		//in entsprechenden Registern speichern
 		setRegister(2, 0, pc);
-		setRegister(2, 8, pc);
 		
-		//Beginne mit dem Durchsuchen der Textdatei wieder bei der ersten Zeile
-		line=0; 
 	}
 	
 	private void increasePc(){
 		//Erhöhe Programmzähler und speichern in entsprechenden Registerfeldern
-		pc=(pc+1)&0xFF;
-		setRegister(2, 0, pc);
-		setRegister(2, 8, pc);
+		setRegister(2, 0, pc+1);
+
 	}
 
+	public void resetRegister(){
+		for (int i = 0;i<16;i++){
+			for (int j = 0; j<16;j++){
+				setRegister(j,i,0);
+			}
+		}
+		pc=0;
+		wRegister=0;
+	}
+	
 	
 	public void initRegister(){	
 		
 		for (int i=0;i<16;i++){
-        	dataRegister.add(new RegisterClass("00","00","00","00","00","00","00","00","00","00","00","00","00","00","00","00",Integer.toHexString(i)));
+        	dataRegister.add(new RegisterClass("0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",Integer.toHexString(i)));
         }
         
     }
@@ -690,21 +668,48 @@ public class CodeReader {
 	}
 	
 	public void setRegister(int x, int y, int wert){
-		
-		if((x==0&&y==0)||(x==0&&y==8)){
-			x = getRegister(4,0)&0x0F;
-			y = (getRegister(4,0)&0xF0)/16;
-		}
-		
-		if((x==3&&y==0)||(x==3&&y==8)){
-			dataRegister.get(0).setSpalten(3,(wert));
-			dataRegister.get(8).setSpalten(3,(wert));
+		/*
+		 * Abfragen, ob Spezial-Register gesetzt werden.
+		 */
+		if(y==0 || y==8){
+			//Indirektes-Register
+			if(x==0){
+				x = getRegister(4,0)&0x0F;
+				y = (getRegister(4,0)&0xF0)/16;
+				dataRegister.get(y).setSpalten(x, wert);
+			} //PC
+			else if(x==2){
+				pc = wert;
+				dataRegister.get(0).setSpalten(x, wert);
+				dataRegister.get(8).setSpalten(x, wert);
+			} //Status
+			else if(x==3){
+				dataRegister.get(0).setSpalten(x,(wert));
+				dataRegister.get(8).setSpalten(x,(wert));
+			} //FSR
+			else if(x==4){
+				dataRegister.get(0).setSpalten(x,(wert));
+				dataRegister.get(8).setSpalten(x,(wert));
+			} //PCLATH
+			else if(x==10){
+				dataRegister.get(0).setSpalten(x,(wert));
+				dataRegister.get(8).setSpalten(x,(wert));
+			} //INTCON
+			else if(x==11){
+				dataRegister.get(0).setSpalten(x,(wert));
+				dataRegister.get(8).setSpalten(x,(wert));
+			}
+			else dataRegister.get(y).setSpalten(x, wert);
+			
 		}else dataRegister.get(y).setSpalten(x, wert);
 			
 	}
 	
 	public int getRegister(int x, int y){
-		if((x==0&&y==0)||(x==0&&y==8)){
+		/* Wenn das Indirekt-Register angesprochen wird setze 
+		 * für x und y die Werte aus FSR-Register ein
+		 */
+		if(x==0 && (y==0 || y==8)){
 			x = getRegister(4,0)&0x0F;
 			y = (getRegister(4,0)&0xF0)/16;
 		}
