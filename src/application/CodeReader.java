@@ -13,12 +13,13 @@ public class CodeReader {
 	private int[] stack = new int[8];
 	private int stackPointer;
 	private ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
+	
 		
 	public CodeReader() {
 		this.pc=0;
 		this.Code=0;
-		this.stackPointer = 0;
-	}	
+		this.stackPointer = 0; 
+		}	
 
 	public int read (String code){
 	//Übergabe des neuen Codes
@@ -103,9 +104,9 @@ public class CodeReader {
 		//Berechnung
 			int result = getLiteral() - wRegister;
 		//Setzen/Löschen der Status-Bits	
-			setCarryBit(result < 0x00); 
+			setCarryBit(result <= 0x00); 
 		//Wenn die Addition der 4 Low-Bits größer als 15, setze das Carry-Digit-Bit
-			setCarryDigitBit(((getLiteral()&0xF)-(wRegister&0xF))<0x0);
+			setCarryDigitBit(((getLiteral()&0xF)-(wRegister&0xF))<=0x0);
 			setZeroBit(result);
 		//Abspeichern	
 			setwRegister(result);			
@@ -287,7 +288,7 @@ public class CodeReader {
 		 	//Wenn d =1, dann speichere in f
 		 	if ((Code & mask(7))==mask(7))setFile(result);
 		 	//Wenn d =0, dann speichere in w					
-		 	else setwRegister(wRegister & getFile());		
+		 	else setwRegister(result);		
 		//Erhöhen des Programmzählers 
 		 	increasePc();
 		
@@ -309,9 +310,9 @@ public class CodeReader {
 		//Berechnung
 			int result = getFile() - wRegister;
 		//Setzen/Löschen der Status-Bits	
-			setCarryBit(result < 0x0); 
+			setCarryBit(result <= 0x0); 
 			//Wenn die Subtraktion der 4 Low-Bits kleiner als 0, setze das Carry-Digit-Bit
-			setCarryDigitBit(((getFile()&0xF)-(wRegister&0xF))<0x0);
+			setCarryDigitBit(((getFile()&0xF)-(wRegister&0xF))<=0x0);
 			setZeroBit(result);
 		//Abspeichern	
 			//Wenn d = 1 speichere Ergebnis in f
@@ -332,7 +333,7 @@ public class CodeReader {
 	 		//Wenn d =1, dann speichere in f
 	 		if ((Code & mask(7))==mask(7))setFile(result);
 	 		//Wenn d =0, dann speichere in w					
-	 		else setwRegister(wRegister & getFile());		
+	 		else setwRegister(result);		
 	 	//Erhöhen des Programmzählers 
 	 		increasePc();
 		
@@ -347,7 +348,7 @@ public class CodeReader {
 		 	//Wenn d =1, dann speichere in f
 		 	if ((Code & mask(7))==mask(7))setFile(result);
 		 	//Wenn d =0, dann speichere in w					
-		 	else setwRegister(wRegister & getFile());		
+		 	else setwRegister(result);		
 		 //Erhöhen des Programmzählers 
 		 	increasePc();
 		
@@ -380,7 +381,7 @@ public class CodeReader {
 			//Wenn d =1, dann speichere in f
 			if ((Code & mask(7))==mask(7))setFile(result);
 			//Wenn d =0, dann speichere in w					
-			else setwRegister(wRegister & getFile());		
+			else setwRegister(result);		
 		//Erhöhen des Programmzählers 
 			increasePc();		
 	}
@@ -394,7 +395,7 @@ public class CodeReader {
 			//Wenn d =1, dann speichere in f
 			if ((Code & mask(7))==mask(7))setFile(result);
 			//Wenn d =0, dann speichere in w					
-			else setwRegister(wRegister & getFile());		
+			else setwRegister(result);		
 		//Erhöhen des Programmzählers 
 			increasePc();		
 	}
@@ -489,7 +490,7 @@ public class CodeReader {
 			//Wenn d =1, dann speichere in f
 			if ((Code & mask(7))==mask(7))setFile(result);
 			//Wenn d =0, dann speichere in w					
-			else setwRegister(wRegister & getFile());		
+			else setwRegister(result);		
 		//Erhöhen des Programmzählers 
 			increasePc();
 		
@@ -586,8 +587,8 @@ public class CodeReader {
 	public ObservableList<RegisterClass> getDataRegister() {
 		return dataRegister;
 	}
-
 	
+
 	public int getPc() {
 		return pc;
 	}
@@ -623,6 +624,7 @@ public class CodeReader {
         
     }
 	
+
 		
 	private int getFile(){
 		//Ermittlung der Registerspalte

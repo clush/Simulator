@@ -2,7 +2,7 @@ package application;
 
 import javafx.scene.control.CheckBox;
 
-public class ValueClass {
+public class TextClass {
 	  private CheckBox column0;
 	  private String column1;
 	  private String column2;
@@ -16,7 +16,7 @@ public class ValueClass {
 				+ ", column3=" + column3 + "]";
 	}
 
-	public ValueClass(String column1, String column2, String column3) {
+	public TextClass(String column1, String column2, String column3) {
 	    this.column0 = new CheckBox();
 		this.column1 = column1;
 	    this.column2 = column2;
