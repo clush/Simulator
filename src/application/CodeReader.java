@@ -3,6 +3,7 @@ package application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import application.RegisterClass;
+import application.StackClass;
 
 
 public class CodeReader {
@@ -10,10 +11,9 @@ public class CodeReader {
 	private int wRegister;
 	private int pc;
 	private int Code;
-	private int[] stack = new int[8];
 	private int stackPointer;
 	private ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
-	
+	private ObservableList<StackClass> dataStack = FXCollections.observableArrayList();
 		
 	public CodeReader() {
 		this.pc=0;
@@ -117,7 +117,7 @@ public class CodeReader {
 
 	private void RETURN() {
 		//Zurückspringen an in Stack gespeicherte Addresse
-			setPc(stack[stackPointer]);
+			setPc(dataStack.get(stackPointer).getStackInd());
 		//StackPointer nach links rotieren
 			if(stackPointer<=0)stackPointer=7;
 			else stackPointer--;
@@ -130,7 +130,7 @@ public class CodeReader {
 		//Abspeichern	
 			setwRegister(result);			
 		//Zurückspringen an in Stack gespeicherte Addresse
-			setPc(stack[stackPointer]);
+			setPc(dataStack.get(stackPointer).getStackInd());
 		//StackPointer nach links rotieren
 			if(stackPointer<=0)stackPointer=7;
 			else stackPointer--;
@@ -184,7 +184,7 @@ public class CodeReader {
 			if(stackPointer>=7)stackPointer=0;
 			else stackPointer++;
 		//Abspeichern der Programmstelle der nächsten Operation im Stack
-			stack[stackPointer] = pc + 1;
+			dataStack.get(stackPointer).setStack(pc + 1);
 		//Sprung zu angegebenem Programmstelle 
 			setPc(this.Code & 0x07FF);		
 	}
@@ -575,7 +575,8 @@ public class CodeReader {
 	
 
 	public String getwRegister() {
-		return Integer.toHexString(wRegister);
+		if(Integer.valueOf(wRegister)<=0xF)return 0+Integer.toHexString(wRegister);
+		else return Integer.toHexString(wRegister);
 	}
 	
 	
@@ -586,6 +587,14 @@ public class CodeReader {
 
 	public ObservableList<RegisterClass> getDataRegister() {
 		return dataRegister;
+	}
+	
+	public ObservableList<StackClass> getDataStack() {
+		return dataStack;
+	}
+	
+	public int getStackpointer(){
+		return stackPointer;
 	}
 	
 
@@ -619,8 +628,12 @@ public class CodeReader {
 	public void initRegister(){	
 		
 		for (int i=0;i<16;i++){
-        	dataRegister.add(new RegisterClass("0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",Integer.toHexString(i)));
+        	dataRegister.add(new RegisterClass("0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",Integer.toHexString(i).toUpperCase()+"0"));
         }
+		
+		for (int i=0;i<8;i++){
+			dataStack.add(new StackClass("0",Integer.toString(i)));
+		}
         
     }
 	

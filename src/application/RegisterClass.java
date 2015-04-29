@@ -39,83 +39,83 @@ public class RegisterClass {
 	}
 	
 	public String getSpalte0() {
-		if (Integer.valueOf(spalten[0],16)<=0xF)return 0+spalten[0];
-		else return spalten[0];
+		if (Integer.valueOf(spalten[0],16)<=0xF)return 0+spalten[0].toUpperCase();
+		else return spalten[0].toUpperCase();
 	}
 	
 	public String getSpalte1() {
-		if (Integer.valueOf(spalten[1],16)<=0xF)return 0+spalten[1];
-		else return spalten[1];
+		if (Integer.valueOf(spalten[1],16)<=0xF)return 0+spalten[1].toUpperCase();
+		else return spalten[1].toUpperCase();
 	}
 	
 	public String getSpalte2() {
-		if (Integer.valueOf(spalten[2],16)<=0xF)return 0+spalten[2];
-		else return spalten[2];
+		if (Integer.valueOf(spalten[2],16)<=0xF)return 0+spalten[2].toUpperCase();
+		else return spalten[2].toUpperCase();
 	}
 	
 	public String getSpalte3() {
-		if (Integer.valueOf(spalten[3],16)<=0xF)return 0+spalten[3];
-		else return spalten[3];
+		if (Integer.valueOf(spalten[3],16)<=0xF)return 0+spalten[3].toUpperCase();
+		else return spalten[3].toUpperCase();
 	}
 	
 	public String getSpalte4() {
-		if (Integer.valueOf(spalten[4],16)<=0xF)return 0+spalten[4];
-		else return spalten[4];
+		if (Integer.valueOf(spalten[4],16)<=0xF)return 0+spalten[4].toUpperCase();
+		else return spalten[4].toUpperCase();
 	}
 	
 	public String getSpalte5() {
-		if (Integer.valueOf(spalten[5],16)<=0xF)return 0+spalten[5];
-		else return spalten[5];
+		if (Integer.valueOf(spalten[5],16)<=0xF)return 0+spalten[5].toUpperCase();
+		else return spalten[5].toUpperCase();
 	}
 	
 	public String getSpalte6() {
-		if (Integer.valueOf(spalten[6],16)<=0xF)return 0+spalten[6];
-		else return spalten[6];
+		if (Integer.valueOf(spalten[6],16)<=0xF)return 0+spalten[6].toUpperCase();
+		else return spalten[6].toUpperCase();
 	}
 	
 	public String getSpalte7() {
-		if (Integer.valueOf(spalten[7],16)<=0xF)return 0+spalten[7];
-		else return spalten[7];
+		if (Integer.valueOf(spalten[7],16)<=0xF)return 0+spalten[7].toUpperCase();
+		else return spalten[7].toUpperCase();
 	}
 	
 	public String getSpalte8() {
-		if (Integer.valueOf(spalten[8],16)<=0xF)return 0+spalten[8];
-		else return spalten[8];
+		if (Integer.valueOf(spalten[8],16)<=0xF)return 0+spalten[8].toUpperCase();
+		else return spalten[8].toUpperCase();
 	}
 	
 	public String getSpalte9() {
-		if (Integer.valueOf(spalten[9],16)<=0xF)return 0+spalten[9];
-		else return spalten[9];
+		if (Integer.valueOf(spalten[9],16)<=0xF)return 0+spalten[9].toUpperCase();
+		else return spalten[9].toUpperCase();
 	}
 	
 	public String getSpalteA() {
-		if (Integer.valueOf(spalten[10],16)<=0xF)return 0+spalten[10];
-		else return spalten[10];
+		if (Integer.valueOf(spalten[10],16)<=0xF)return 0+spalten[10].toUpperCase();
+		else return spalten[10].toUpperCase();
 	}
 	
 	public String getSpalteB() {
-		if (Integer.valueOf(spalten[11],16)<=0xF)return 0+spalten[11];
-		else return spalten[11];
+		if (Integer.valueOf(spalten[11],16)<=0xF)return 0+spalten[11].toUpperCase();
+		else return spalten[11].toUpperCase();
 	}
 	
 	public String getSpalteC() {
-		if (Integer.valueOf(spalten[12],16)<=0xF)return 0+spalten[12];
-		else return spalten[12];
+		if (Integer.valueOf(spalten[12],16)<=0xF)return 0+spalten[12].toUpperCase();
+		else return spalten[12].toUpperCase();
 	}
 	
 	public String getSpalteD() {
-		if (Integer.valueOf(spalten[13],16)<=0xF)return 0+spalten[13];
-		else return spalten[13];
+		if (Integer.valueOf(spalten[13],16)<=0xF)return 0+spalten[13].toUpperCase();
+		else return spalten[13].toUpperCase();
 	}
 	
 	public String getSpalteE() {
-		if (Integer.valueOf(spalten[14],16)<=0xF)return 0+spalten[14];
-		else return spalten[14];
+		if (Integer.valueOf(spalten[14],16)<=0xF)return 0+spalten[14].toUpperCase();
+		else return spalten[14].toUpperCase();
 	}
 	
 	public String getSpalteF() {
-		if (Integer.valueOf(spalten[15],16)<=0xF)return 0+spalten[15];
-		else return spalten[15];
+		if (Integer.valueOf(spalten[15],16)<=0xF)return 0+spalten[15].toUpperCase();
+		else return spalten[15].toUpperCase();
 	}	
 	
 }
