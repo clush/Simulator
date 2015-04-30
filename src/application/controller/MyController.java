@@ -76,11 +76,42 @@ public class MyController implements Initializable{
 	ObservableList<TextClass> data = FXCollections.observableArrayList();
 			
 //Radio-Buttons
-	@FXML
-	private RadioButton TrisB_0;
 		
+	//Geschwindigkeit	
 	@FXML
-	private RadioButton PortB_0;	
+	private RadioButton btnSchnell;
+	@FXML
+	private RadioButton btnMittel;
+	@FXML
+	private RadioButton btnLangsam;
+	
+	//Ports
+	@FXML
+	private RadioButton btnPortA0;
+	@FXML
+	private RadioButton btnPortA1;
+	@FXML
+	private RadioButton btnPortA2;
+	@FXML
+	private RadioButton btnPortA3;
+	@FXML
+	private RadioButton btnPortA4;
+	@FXML
+	private RadioButton btnPortB0;
+	@FXML
+	private RadioButton btnPortB1;
+	@FXML
+	private RadioButton btnPortB2;
+	@FXML
+	private RadioButton btnPortB3;
+	@FXML
+	private RadioButton btnPortB4;
+	@FXML
+	private RadioButton btnPortB5;
+	@FXML
+	private RadioButton btnPortB6;
+	@FXML
+	private RadioButton btnPortB7;
 	
 //Text-Felder
 	
@@ -94,6 +125,7 @@ public class MyController implements Initializable{
 	private int focusLine = 0;
 	private int textLine=0;
 	private int runable = 0; //Nur wenn diese Variable 1 ist kann runProgram() gestartet werden
+	private int speed=100;
 
 //Methode zum Testen einzelner Befehle
 	public void Test(ActionEvent event){
@@ -125,22 +157,28 @@ public class MyController implements Initializable{
 //Methode zur Initialisierung der Register- und Stackt-Tabelle	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		 	codeReader.initRegister();
+	//Geschwindigkeit auf mittel stellen
+		
+		btnMittel.selectedProperty().set(true);		
+		
+	//Register initialisieren
+		
+		codeReader.initRegister();
 	
 	//Stackspalten definieren
 		 	
 		 	colBeschriftung = new TableColumn<StackClass,String>("");
 		 	colBeschriftung.setCellValueFactory(new PropertyValueFactory<StackClass, String>("beschriftung"));
 		 	colBeschriftung.setStyle("-fx-font-weight: bold; -fx-background-color: #DFDFDF;-fx-alignment: center;");
-		 	colBeschriftung.setMaxWidth(24);
-		 	colBeschriftung.setMinWidth(24);
+		 	colBeschriftung.setMaxWidth(31);
+		 	colBeschriftung.setMinWidth(31);
 		 	
 		 	
 		 	colStack = new TableColumn<StackClass,String>("Stack");
 		 	colStack.setCellValueFactory(new PropertyValueFactory<StackClass, String>("stack"));
 		 	colStack.setStyle("-fx-alignment: center;");
-		 	colStack.setMaxWidth(40);
-		 	colStack.setMinWidth(40);
+		 	colStack.setMaxWidth(64);
+		 	colStack.setMinWidth(64);
 		 			 	
 		 	
 	//Stacktabelle erzeugen
@@ -272,7 +310,7 @@ public class MyController implements Initializable{
 		if(runable==1){
 		taskRun = new Task<Integer>() {
 		    @Override protected Integer call() throws Exception {
-		    	RunProgram(false, 80);		   
+		    	RunProgram(false, speed);		   
 		    	
 		        return textLine;
 		    }
@@ -523,12 +561,113 @@ public class MyController implements Initializable{
  		}else{
  			codeReader.clearBit(6, 0, 0);
  			refreshView();
- 		}*/
+ 		}
  		
  		if (true){
  			PortB_0.selectedProperty().set(false);
  		}
+ 		
+ 		*/
  	}
+ 	
+ 	public void actSchnell(){
+ 		//Erneutes Anklicken ->Button bleibt aktiv
+ 		if(!btnSchnell.isSelected()){ 
+ 			btnSchnell.selectedProperty().set(true);
+ 		}else{//Wenn nicht bereits ausgewählt
+ 			if (runable==0){//Nur wenn Programm gestoppt
+ 				//Setze die anderen Buttons auf false
+ 				btnMittel.selectedProperty().set(false);
+ 				btnLangsam.selectedProperty().set(false);
+ 				//Setze neue Geschwindigkeit
+ 				speed=50;
+ 				
+ 			}else{//Wenn Program läuft, kann Button nicht aktiviert werden
+ 				btnSchnell.selectedProperty().set(false);
+ 			}
+ 			
+ 		}
+ 	}
+ 	
+ 	public void actMittel(){
+ 		//Erneutes Anklicken ->Button bleibt aktiv
+ 		if(!btnMittel.isSelected()){ 
+ 			btnMittel.selectedProperty().set(true);
+ 		}else{//Wenn nicht bereits ausgewählt
+ 			if (runable==0){//Nur wenn Programm gestoppt
+ 				//Setze die anderen Buttons auf false
+ 				btnSchnell.selectedProperty().set(false);
+ 				btnLangsam.selectedProperty().set(false);
+ 				//Setze neue Geschwindigkeit
+ 				speed=100;
+ 				
+ 			}else{//Wenn Program läuft, kann Button nicht aktiviert werden
+ 				btnMittel.selectedProperty().set(false);
+ 			}
+ 			
+ 		}
+ 	}
+ 	
+ 	public void actLangsam(){
+ 		//Erneutes Anklicken ->Button bleibt aktiv
+ 		if(!btnLangsam.isSelected()){ 
+ 			btnLangsam.selectedProperty().set(true);
+ 		}else{//Wenn nicht bereits ausgewählt
+ 			if (runable==0){//Nur wenn Programm gestoppt
+ 				//Setze die anderen Buttons auf false
+ 				btnSchnell.selectedProperty().set(false);
+ 				btnMittel.selectedProperty().set(false);
+ 				//Setze neue Geschwindigkeit
+ 				speed=200;
+ 				
+ 			}else{//Wenn Program läuft, kann Button nicht aktiviert werden
+ 				btnLangsam.selectedProperty().set(false);
+ 			}
+ 			
+ 		}
+ 	}
+ 	
+ 	public void actPortA0(){
+ 		
+ 	}
+ 	public void actPortA1(){
+ 		
+ 	}
+ 	public void actPortA2(){
+ 		
+ 	}
+ 	public void actPortA3(){
+ 		
+ 	}
+ 	public void actPortA4(){
+ 		
+ 	}
+ 	public void actPortB0(){
+ 		
+ 	}
+ 	public void actPortB1(){
+ 		
+ 	}
+ 	public void actPortB2(){
+ 		
+ 	}
+ 	public void actPortB3(){
+ 		
+ 	}
+ 	public void actPortB4(){
+ 		
+ 	}
+ 	public void actPortB5(){
+ 		
+ 	}
+ 	public void actPortB6(){
+ 		
+ 	}
+ 	public void actPortB7(){
+ 		
+ 	}
+ 	
+ 	
 
 
 
