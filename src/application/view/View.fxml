@@ -23,7 +23,7 @@
       <TableView fx:id="tableViewRegister" layoutX="14.0" layoutY="442.0" prefHeight="240.0" prefWidth="423.0" />
       <Button layoutX="115.0" layoutY="34.0" mnemonicParsing="false" onAction="#StopProgramm" text="Stop" />
       <Button fx:id="btn_Step" layoutX="213.0" layoutY="34.0" mnemonicParsing="false" onAction="#Steps" text="Steps" />
-      <Button fx:id="btntest" layoutX="693.0" layoutY="22.0" mnemonicParsing="false" onAction="#Test" text="Test" />
+      <Button fx:id="btntest" layoutX="515.0" layoutY="66.0" mnemonicParsing="false" onAction="#Test" text="Test" />
       <Button fx:id="btnReset" layoutX="162.0" layoutY="34.0" mnemonicParsing="false" onAction="#Reset" text="Reset" />
       <GridPane layoutX="284.0" layoutY="12.0" prefHeight="45.0" prefWidth="221.0">
         <columnConstraints>
@@ -43,29 +43,29 @@
             <RadioButton fx:id="btnLangsam" mnemonicParsing="false" onAction="#actLangsam" onDragDetected="#actLangsam" prefHeight="17.0" prefWidth="75.0" text="langsam" GridPane.columnIndex="2" GridPane.rowIndex="2" />
          </children>
       </GridPane>
-      <TableView fx:id="tableViewStack" layoutX="452.0" layoutY="460.0" prefHeight="219.0" prefWidth="97.0" />
-      <GridPane layoutX="452.0" layoutY="435.0" prefHeight="25.0" prefWidth="108.0">
+      <TableView fx:id="tableViewStack" layoutX="634.0" layoutY="463.0" prefHeight="219.0" prefWidth="97.0" />
+      <GridPane layoutX="452.0" layoutY="430.0" prefHeight="25.0" prefWidth="126.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="78.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="49.0" minWidth="10.0" prefWidth="30.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="91.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="49.0" minWidth="10.0" prefWidth="35.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="W-Register:" wrappingWidth="74.0390625">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="W-Register:" wrappingWidth="85.0390625">
                <font>
-                  <Font name="System Bold" size="12.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Text>
-            <Text fx:id="txt_wRegister" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="30.13671875" GridPane.columnIndex="1">
+            <Text fx:id="txt_wRegister" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="28.13671875" GridPane.columnIndex="1">
                <font>
-                  <Font name="System Bold" size="12.0" />
+                  <Font name="System Bold" size="14.0" />
                </font>
             </Text>
          </children>
       </GridPane>
-      <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="565.0" layoutY="442.0" prefHeight="240.0" prefWidth="166.0" AnchorPane.leftAnchor="565.0">
+      <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="451.0" layoutY="465.0" prefHeight="215.0" prefWidth="166.0" AnchorPane.leftAnchor="451.0">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="56.0" minWidth="10.0" prefWidth="40.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="72.0" minWidth="10.0" prefWidth="63.0" />
@@ -159,6 +159,27 @@
                   <Insets left="24.0" />
                </GridPane.margin>
             </RadioButton>
+         </children>
+      </GridPane>
+      <GridPane layoutX="598.0" layoutY="26.0" prefHeight="17.0" prefWidth="133.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="67.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="66.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Laufzeit:" wrappingWidth="58.8388671875">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <Text fx:id="txtLaufzeit" strokeType="OUTSIDE" strokeWidth="0.0" text="00" GridPane.columnIndex="1">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
          </children>
       </GridPane>
    </children>

@@ -1,5 +1,7 @@
 package application;
 
+import java.text.DecimalFormat;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import application.RegisterClass;
@@ -14,11 +16,13 @@ public class CodeReader {
 	private int stackPointer;
 	private ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
 	private ObservableList<StackClass> dataStack = FXCollections.observableArrayList();
+	private double cycles;
 		
 	public CodeReader() {
 		this.pc=0;
 		this.Code=0;
-		this.stackPointer = 0; 
+		this.stackPointer = 0;
+		double cycles = 0;
 		}	
 
 	public int read (String code){
@@ -139,6 +143,7 @@ public class CodeReader {
 
 	private void RETFIE() {
 		//Erhöhen des Programmzählers
+			cycles++;
 			increasePc();
 		
 	}
@@ -597,6 +602,10 @@ public class CodeReader {
 		return stackPointer;
 	}
 	
+	public double getCycles(){			
+		return cycles * 122.07;
+	}
+	
 
 	public int getPc() {
 		return pc;
@@ -605,11 +614,13 @@ public class CodeReader {
 	private void setPc(int pc) {
 		//in entsprechenden Registern speichern
 		setRegister(2, 0, pc);
+		cycles+=2;
 		
 	}
 	
 	private void increasePc(){
 		//Erhöhe Programmzähler und speichern in entsprechenden Registerfeldern
+		cycles++;
 		setRegister(2, 0, pc+1);
 
 	}
@@ -622,6 +633,12 @@ public class CodeReader {
 				setRegister(j,i,0);
 			}
 		}
+		//Register, die nicht null sind
+		setRegister(3,0,24);
+		setRegister(1,8,255);
+		setRegister(5,8,255);
+		setRegister(6,8,255);
+		
 		//Stack
 		for(int i=0;i<8;i++){
 			dataStack.get(i).setStack(0);

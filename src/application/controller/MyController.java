@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
 import application.CodeReader;
@@ -118,6 +119,9 @@ public class MyController implements Initializable{
 	@FXML
 	private Text txt_wRegister;
 	
+	@FXML
+	private Text txtLaufzeit;
+	
 //Variablen
 	private Task<Integer> taskRun;
 	private Thread th;
@@ -164,6 +168,7 @@ public class MyController implements Initializable{
 	//Register initialisieren
 		
 		codeReader.initRegister();
+		codeReader.resetRegister();
 	
 	//Stackspalten definieren
 		 	
@@ -305,6 +310,8 @@ public class MyController implements Initializable{
 //Beim Klicken auf Start, startet programm
 	public void StartProgramm(ActionEvent event){		
 		
+		if(!data.isEmpty()){//Nur wenn bereits ein Program geladen wurde 
+		
 		runable++;
 		
 		if(runable==1){
@@ -322,10 +329,13 @@ public class MyController implements Initializable{
 		th.start();			
 		}
 	}
+	}
 
 //Beim Klicken auf Steps wird genau eine Operation ausgeführt
 	public void Steps(ActionEvent event)  {
         
+		if(!data.isEmpty()){//Nur wenn bereits ein Program geladen wurde 
+		
 		runable++;
 		
 		if(runable==1){
@@ -342,7 +352,7 @@ public class MyController implements Initializable{
 		th.setDaemon(true);
 		th.start();
 		}
-		
+		}		
 	}
 
 //Beim Klicken auf Stop wird das laufende Programm angehalten
@@ -534,10 +544,16 @@ public class MyController implements Initializable{
 				if(col1.getCellData(textLine)==null)break;
 				
 			}
+		 
 	}
 	
 //Methode, die nach jeder Änderung aufgerufen wird, um die View zu aktualisieren
  	public void refreshView(){
+ 	
+ 	//Laufzeit
+ 		DecimalFormat df = new DecimalFormat("#.##");
+ 		txtLaufzeit.setText(df.format(codeReader.getCycles()));
+ 		
  	//Register
  		registerBeschriftung.setVisible(false);
  		registerBeschriftung.setVisible(true);
@@ -671,6 +687,8 @@ public class MyController implements Initializable{
  		}
  	}
  	
+//Ports
+ 	
  	public void actPortA0(){
  		if(codeReader.bitTest(5, 8, 0)){//Wenn Bit im Tis-Register gesetz->Eingang
  			if(btnPortA0.isSelected()){//Setze Bit
@@ -680,8 +698,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(5, 0, 0);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortA0.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortA0.isSelected())btnPortA0.selectedProperty().set(false);
+ 			else btnPortA0.selectedProperty().set(true);
  		}
  		
  	}
@@ -694,8 +713,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(5, 0, 1);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortA1.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortA1.isSelected())btnPortA1.selectedProperty().set(false);
+ 			else btnPortA1.selectedProperty().set(true);
  		}
  	}
  	public void actPortA2(){
@@ -707,8 +727,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(5, 0, 2);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortA2.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortA2.isSelected())btnPortA2.selectedProperty().set(false);
+ 			else btnPortA2.selectedProperty().set(true);
  		}
  	}
  	public void actPortA3(){
@@ -720,8 +741,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(5, 0, 3);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortA3.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortA3.isSelected())btnPortA3.selectedProperty().set(false);
+ 			else btnPortA3.selectedProperty().set(true);
  		}
  	}
  	public void actPortA4(){
@@ -733,8 +755,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(5, 0, 4);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortA4.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortA4.isSelected())btnPortA4.selectedProperty().set(false);
+ 			else btnPortA4.selectedProperty().set(true);
  		}
  	}
  	public void actPortB0(){
@@ -746,8 +769,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 0);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB0.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB0.isSelected())btnPortB0.selectedProperty().set(false);
+ 			else btnPortB0.selectedProperty().set(true);
  		}
  	}
  	public void actPortB1(){
@@ -759,8 +783,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 1);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB1.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB1.isSelected())btnPortB1.selectedProperty().set(false);
+ 			else btnPortB1.selectedProperty().set(true);
  		}
  	}
  	public void actPortB2(){
@@ -772,8 +797,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 2);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB2.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB2.isSelected())btnPortB2.selectedProperty().set(false);
+ 			else btnPortB2.selectedProperty().set(true);
  		}
  	}
  	public void actPortB3(){
@@ -785,8 +811,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 3);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB3.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB3.isSelected())btnPortB3.selectedProperty().set(false);
+ 			else btnPortB3.selectedProperty().set(true);
  		}
  	}
  	public void actPortB4(){
@@ -798,8 +825,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 4);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB4.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB4.isSelected())btnPortB4.selectedProperty().set(false);
+ 			else btnPortB4.selectedProperty().set(true);
  		}
  	}
  	public void actPortB5(){
@@ -811,8 +839,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 5);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB5.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB5.isSelected())btnPortB5.selectedProperty().set(false);
+ 			else btnPortB5.selectedProperty().set(true);
  		}
  	}
  	public void actPortB6(){
@@ -824,8 +853,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 6);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB6.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB6.isSelected())btnPortB6.selectedProperty().set(false);
+ 			else btnPortB6.selectedProperty().set(true);
  		}
  	}
  	public void actPortB7(){
@@ -837,8 +867,9 @@ public class MyController implements Initializable{
  				codeReader.clearBit(6, 0, 7);
  				refreshView();
  			}
- 		}else{//Kein Eingang->Button kann nicht aktiviert werden
- 			btnPortB7.selectedProperty().set(false);
+ 		}else{//Kein Eingang->Button behält seinen Wert
+ 			if(btnPortB7.isSelected())btnPortB7.selectedProperty().set(false);
+ 			else btnPortB7.selectedProperty().set(true);
  		}
  	}
  	
