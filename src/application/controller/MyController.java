@@ -353,9 +353,14 @@ public class MyController implements Initializable{
 
 //Beim Klicken kann eine Datei ausgewählt werden und der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
-
+//Kann nur ausgeführt werden, wenn Program nicht gestartet
+		
+	if(runable==0){
 //vorherige Tabelleninhalte löschen		
 		tableViewText.getColumns().clear();	
+
+//Data löschen
+		data.clear();
 
 //Reset der Register
 		textLine = 0;
@@ -366,17 +371,13 @@ public class MyController implements Initializable{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Öffne Datei");
 		
-		// Set extension filter
+		// Filtern nach LST-Dateien
         FileChooser.ExtensionFilter extFilter = 
                 new FileChooser.ExtensionFilter("LST-Files", "*.LST");
         fileChooser.getExtensionFilters().add(extFilter);
 		
 		File file = fileChooser.showOpenDialog(stage);
-        
-		 
-		
-		 
-		
+        		
 		if (!file.canRead() || !file.isFile())
             System.exit(0);
 
@@ -388,7 +389,6 @@ public class MyController implements Initializable{
             String zeile = null;
             while ((zeile = in.readLine()) != null) {
                 data.add(new TextClass(zeile.substring(0, 5).trim(),zeile.substring(5,9).trim(),zeile.substring(9).trim()));
-                
             }
            
         } catch (IOException e) {
@@ -442,10 +442,13 @@ public class MyController implements Initializable{
 			
         tableViewText.getSelectionModel().select(textLine);
 		refreshView();
+	}	
 	}
 
 //Beim Klicken auf Reset werden alle Register zurückgesetzt
 	public void Reset(ActionEvent event){
+		
+		if(runable==0){//Kann nur ausgeführt werden, wenn Program gestoppt ist		
 		//Reset der Register
 		textLine = 0;
 		codeReader.resetRegister();
@@ -456,6 +459,7 @@ public class MyController implements Initializable{
 			
         tableViewText.getSelectionModel().select(textLine);
 		refreshView();
+		}
 	}
 
 //Methode, die das eingelesene Programm ausführt
@@ -548,6 +552,46 @@ public class MyController implements Initializable{
 		colBeschriftung.setVisible(true);
 		tableViewStack.getSelectionModel().select(codeReader.getStackpointer());
 		
+	//PortA
+		if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
+		else btnPortA0.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(5, 0, 1))btnPortA1.selectedProperty().set(true);
+		else btnPortA1.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(5, 0, 2))btnPortA2.selectedProperty().set(true);
+		else btnPortA2.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(5, 0, 3))btnPortA3.selectedProperty().set(true);
+		else btnPortA3.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(5, 0, 4))btnPortA4.selectedProperty().set(true);
+		else btnPortA4.selectedProperty().set(false);
+		
+	//Port B
+		if(codeReader.bitTest(6, 0, 0))btnPortB0.selectedProperty().set(true);
+		else btnPortB0.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 1))btnPortB1.selectedProperty().set(true);
+		else btnPortB1.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 2))btnPortB2.selectedProperty().set(true);
+		else btnPortB2.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 3))btnPortB3.selectedProperty().set(true);
+		else btnPortB3.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 4))btnPortB4.selectedProperty().set(true);
+		else btnPortB4.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 5))btnPortB5.selectedProperty().set(true);
+		else btnPortB5.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 6))btnPortB6.selectedProperty().set(true);
+		else btnPortB6.selectedProperty().set(false);
+		
+		if(codeReader.bitTest(6, 0, 7))btnPortB7.selectedProperty().set(true);
+		else btnPortB7.selectedProperty().set(false);
 	}
 
  /*
@@ -628,43 +672,174 @@ public class MyController implements Initializable{
  	}
  	
  	public void actPortA0(){
+ 		if(codeReader.bitTest(5, 8, 0)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortA0.isSelected()){//Setze Bit
+ 				codeReader.setBit(5, 0, 0);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(5, 0, 0);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortA0.selectedProperty().set(false);
+ 		}
  		
  	}
  	public void actPortA1(){
- 		
+ 		if(codeReader.bitTest(5, 8, 1)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortA1.isSelected()){//Setze Bit
+ 				codeReader.setBit(5, 0, 1);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(5, 0, 1);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortA1.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortA2(){
- 		
+ 		if(codeReader.bitTest(5, 8, 2)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortA2.isSelected()){//Setze Bit
+ 				codeReader.setBit(5, 0, 2);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(5, 0, 2);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortA2.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortA3(){
- 		
+ 		if(codeReader.bitTest(5, 8, 3)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortA3.isSelected()){//Setze Bit
+ 				codeReader.setBit(5, 0, 3);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(5, 0, 3);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortA3.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortA4(){
- 		
+ 		if(codeReader.bitTest(5, 8, 4)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortA4.isSelected()){//Setze Bit
+ 				codeReader.setBit(5, 0, 4);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(5, 0, 4);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortA4.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB0(){
- 		
+ 		if(codeReader.bitTest(6, 8, 0)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB0.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 0);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 0);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB0.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB1(){
- 		
+ 		if(codeReader.bitTest(6, 8, 1)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB1.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 1);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 1);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB1.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB2(){
- 		
+ 		if(codeReader.bitTest(6, 8, 2)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB2.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 2);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 2);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB2.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB3(){
- 		
+ 		if(codeReader.bitTest(6, 8, 3)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB3.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 3);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 3);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB3.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB4(){
- 		
+ 		if(codeReader.bitTest(6, 8, 4)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB4.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 4);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 4);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB4.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB5(){
- 		
+ 		if(codeReader.bitTest(6, 8, 5)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB5.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 5);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 5);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB5.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB6(){
- 		
+ 		if(codeReader.bitTest(6, 8, 6)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB6.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 6);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 6);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB6.selectedProperty().set(false);
+ 		}
  	}
  	public void actPortB7(){
- 		
+ 		if(codeReader.bitTest(6, 8, 7)){//Wenn Bit im Tis-Register gesetz->Eingang
+ 			if(btnPortB7.isSelected()){//Setze Bit
+ 				codeReader.setBit(6, 0, 7);
+ 				refreshView();
+ 			}else{//Lösche Bit
+ 				codeReader.clearBit(6, 0, 7);
+ 				refreshView();
+ 			}
+ 		}else{//Kein Eingang->Button kann nicht aktiviert werden
+ 			btnPortB7.selectedProperty().set(false);
+ 		}
  	}
  	
  	

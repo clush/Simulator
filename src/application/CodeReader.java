@@ -615,11 +615,19 @@ public class CodeReader {
 	}
 
 	public void resetRegister(){
+		
+		//Register
 		for (int i = 0;i<16;i++){
 			for (int j = 0; j<16;j++){
 				setRegister(j,i,0);
 			}
 		}
+		//Stack
+		for(int i=0;i<8;i++){
+			dataStack.get(i).setStack(0);
+		}
+		
+		stackPointer=0;
 		pc=0;
 		wRegister=0;
 	}
