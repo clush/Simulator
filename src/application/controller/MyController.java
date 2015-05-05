@@ -1245,8 +1245,21 @@ public class MyController implements Initializable{
  		refreshView(); 		
  	}	
 
-
-
+//Hilfefunktion
+ 	
+ 	/*public void actHilfe() throws IOException{
+ 		Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL Datenblatt 16F84.pdf");
+ 		System.out.println("test");
+ 	}*/
+ 
+ 	
+ 	   public void actHilfe() throws Exception {
+ 	     Process p = 
+ 	         Runtime.getRuntime()
+ 	           .exec("rundll32 url.dll,FileProtocolHandler Datenblatt 16F84.pdf");
+ 	     p.waitFor(); 	    
+ 	     }
+ 	   
 }
 
 

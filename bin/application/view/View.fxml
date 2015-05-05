@@ -160,7 +160,7 @@
             </RadioButton>
          </children>
       </GridPane>
-      <GridPane layoutX="535.0" layoutY="34.0" prefHeight="25.0" prefWidth="261.0">
+      <GridPane layoutX="521.0" layoutY="85.0" prefHeight="25.0" prefWidth="261.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="61.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="69.0" />
@@ -183,7 +183,7 @@
             <Button mnemonicParsing="false" onAction="#actZurücksetzen" text="zurücksetzen" GridPane.columnIndex="2" />
          </children>
       </GridPane>
-      <GridPane layoutX="535.0" layoutY="85.0" prefHeight="25.0" prefWidth="213.0">
+      <GridPane layoutX="521.0" layoutY="137.0" prefHeight="25.0" prefWidth="213.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="84.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="79.0" />
@@ -202,7 +202,7 @@
             <TextField fx:id="txtQuarzfrequenz" prefHeight="25.0" prefWidth="58.0" text="0.5" GridPane.columnIndex="1" />
          </children>
       </GridPane>
-      <GridPane layoutX="533.0" layoutY="127.0" prefHeight="31.0" prefWidth="275.0">
+      <GridPane layoutX="521.0" layoutY="193.0" prefHeight="31.0" prefWidth="275.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="131.0" minWidth="10.0" prefWidth="124.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="157.0" minWidth="10.0" prefWidth="83.0" />
@@ -221,6 +221,7 @@
             <ChoiceBox fx:id="boxAux" prefWidth="150.0" GridPane.columnIndex="2" />
          </children>
       </GridPane>
-      <Button fx:id="btntest" layoutX="526.0" layoutY="248.0" mnemonicParsing="false" onAction="#Test" text="Test" />
+      <Button fx:id="btntest" layoutX="514.0" layoutY="371.0" mnemonicParsing="false" onAction="#Test" text="Test" />
+      <Button fx:id="btnHilfe" layoutX="769.0" layoutY="10.0" mnemonicParsing="false" onAction="#actHilfe" text="Hilfe" />
    </children>
 </AnchorPane>
