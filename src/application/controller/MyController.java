@@ -20,12 +20,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -34,7 +39,7 @@ import javafx.stage.Window;
 
 public class MyController implements Initializable{	
 
-	//Deklaration der TableView zum Anzeigen des Stacks
+//Deklaration der TableView zum Anzeigen des Stacks
 	
 		@FXML
 		public TableView<StackClass> tableViewStack;
@@ -47,7 +52,7 @@ public class MyController implements Initializable{
 	public TableView<RegisterClass> tableViewRegister;
 	
 	TableColumn<RegisterClass, String> registerBeschriftung;
-	TableColumn<RegisterClass, String> registerSpalte0;
+	TableColumn<RegisterClass, String> registerSpalte0;	 
 	TableColumn<RegisterClass, String> registerSpalte1;
 	TableColumn<RegisterClass, String> registerSpalte2;
 	TableColumn<RegisterClass, String> registerSpalte3;
@@ -77,7 +82,11 @@ public class MyController implements Initializable{
 	ObservableList<TextClass> data = FXCollections.observableArrayList();
 			
 //Radio-Buttons
-		
+	//Hardwareanbindung
+	
+	@FXML
+	private RadioButton btnAux;
+	
 	//Geschwindigkeit	
 	@FXML
 	private RadioButton btnSchnell;
@@ -114,46 +123,52 @@ public class MyController implements Initializable{
 	@FXML
 	private RadioButton btnPortB7;
 	
+//Choice-Box
+	@FXML
+	private ChoiceBox<String> boxAux;
+	
 //Text-Felder
 	
 	@FXML
 	private Text txt_wRegister;
 	
 	@FXML
+	private TextField txtQuarzfrequenz;
+	
+	@FXML
 	private Text txtLaufzeit;
 	
 //Variablen
 	private Task<Integer> taskRun;
+	private Task<Integer> taskRefreshPorts;
 	private Thread th;
+	private Thread thPorts;
 	private Window stage;
 	private int focusLine = 0;
 	private int textLine=0;
-	private int runable = 0; //Nur wenn diese Variable 1 ist kann runProgram() gestartet werden
+	private boolean runable = true; //Nur wenn diese Variable true ist kann runProgram() gestartet werden
+	private boolean auxStop = true;
 	private int speed=100;
+	private DecimalFormat df = new DecimalFormat("#.## µs");
+	private double laufzeit=0;
+	private int alterWertCycles=0;
+	private double quarzfrequenz;
+	private int takt=1;
+	private boolean taktA0=false;
 
 //Methode zum Testen einzelner Befehle
 	public void Test(ActionEvent event){
-		//codeReader.setwRegister(38);		
-		//codeReader.setRegister(3, 0, 32); //Bank wechseln
-		//codeReader.setRegister(1, 1, 38);
-		//codeReader.setRegister(3, 4, 7);
-		//codeReader.read("1683");
+	
 		
-		codeReader.setBit(6, 0, 0);		
-		//System.out.println(data.get(2).getColumn0().selectedProperty().get());
+		/*if(taktA0)taktA0=false;
+		else taktA0=true;
 		
-		/*switch (a){
-		case 0: System.out.println("Alles in Butter"); break;
-		case 1: System.out.println("Code nicht zulässig"); break;
-		case 2: System.out.println("SLEEP");break;
-		
-		default: System.out.println("Unzulässiger Rückgabewert"); 
-		
-		}*/		
+		codeReader.setBit(5, 0, 0);*/				
+			
 		
 		//Refresh View
 		refreshView();
-        txt_wRegister.setText(codeReader.getwRegister());
+        
 		
 	}
 	
@@ -161,6 +176,14 @@ public class MyController implements Initializable{
 //Methode zur Initialisierung der Register- und Stackt-Tabelle	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+	
+	//ChoiceBox initialiseiren
+		
+		boxAux.getItems().addAll(
+				"COM1",
+				"COM2",
+				"COM3");
+		boxAux.setValue("COM1");
 	//Geschwindigkeit auf mittel stellen
 		
 		btnMittel.selectedProperty().set(true);		
@@ -175,15 +198,15 @@ public class MyController implements Initializable{
 		 	colBeschriftung = new TableColumn<StackClass,String>("");
 		 	colBeschriftung.setCellValueFactory(new PropertyValueFactory<StackClass, String>("beschriftung"));
 		 	colBeschriftung.setStyle("-fx-font-weight: bold; -fx-background-color: #DFDFDF;-fx-alignment: center;");
-		 	colBeschriftung.setMaxWidth(31);
-		 	colBeschriftung.setMinWidth(31);
+		 	colBeschriftung.setMaxWidth(24);
+		 	colBeschriftung.setMinWidth(24);
 		 	
 		 	
 		 	colStack = new TableColumn<StackClass,String>("Stack");
 		 	colStack.setCellValueFactory(new PropertyValueFactory<StackClass, String>("stack"));
 		 	colStack.setStyle("-fx-alignment: center;");
-		 	colStack.setMaxWidth(64);
-		 	colStack.setMinWidth(64);
+		 	colStack.setMaxWidth(36);
+		 	colStack.setMinWidth(36);
 		 			 	
 		 	
 	//Stacktabelle erzeugen
@@ -202,85 +225,360 @@ public class MyController implements Initializable{
 	        registerBeschriftung.setMaxWidth(26);
 	        registerBeschriftung.setMinWidth(26);
 	        
-	        registerSpalte0 = new TableColumn<RegisterClass, String>("00");        
+	        registerSpalte0 = new TableColumn<RegisterClass, String>("00");     
 	        registerSpalte0.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte0"));
-	        registerSpalte0.setMaxWidth(24);
-	        registerSpalte0.setMinWidth(24);
+	        registerSpalte0.setStyle("-fx-alignment: center;");
+	        registerSpalte0.setMaxWidth(34);
+	        registerSpalte0.setMinWidth(34);
+	        registerSpalte0.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte0.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 0;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();
+	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte1 = new TableColumn<RegisterClass, String>("01");        
 	        registerSpalte1.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte1"));
-	        registerSpalte1.setMaxWidth(24);
-	        registerSpalte1.setMinWidth(24);
+	        registerSpalte1.setStyle("-fx-alignment: center;");
+	        registerSpalte1.setMaxWidth(34);
+	        registerSpalte1.setMinWidth(34);
+	        registerSpalte1.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte1.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 1;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte2 = new TableColumn<RegisterClass, String>("02");        
 	        registerSpalte2.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte2"));
-	        registerSpalte2.setMaxWidth(24);
-	        registerSpalte2.setMinWidth(24);
+	        registerSpalte2.setStyle("-fx-alignment: center;");
+	        registerSpalte2.setMaxWidth(34);
+	        registerSpalte2.setMinWidth(34);
+	        registerSpalte2.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte2.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 2;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
+	        
 	        
 	        registerSpalte3 = new TableColumn<RegisterClass, String>("03");        
 	        registerSpalte3.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte3"));
-	        registerSpalte3.setMaxWidth(24);
-	        registerSpalte3.setMinWidth(24);
+	        registerSpalte3.setStyle("-fx-alignment: center;");
+	        registerSpalte3.setMaxWidth(34);
+	        registerSpalte3.setMinWidth(34);
+	        registerSpalte3.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte3.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 3;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
+	        
 	        
 	        registerSpalte4 = new TableColumn<RegisterClass, String>("04");        
 	        registerSpalte4.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte4"));
-	        registerSpalte4.setMaxWidth(24);
-	        registerSpalte4.setMinWidth(24);
+	        registerSpalte4.setStyle("-fx-alignment: center;");
+	        registerSpalte4.setMaxWidth(34);
+	        registerSpalte4.setMinWidth(34);
+	        registerSpalte4.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte4.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 4;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte5 = new TableColumn<RegisterClass, String>("05");        
 	        registerSpalte5.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte5"));
-	        registerSpalte5.setMaxWidth(24);
-	        registerSpalte5.setMinWidth(24);
+	        registerSpalte5.setStyle("-fx-alignment: center;");
+	        registerSpalte5.setMaxWidth(34);
+	        registerSpalte5.setMinWidth(34);
+	        registerSpalte5.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte5.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 5;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte6 = new TableColumn<RegisterClass, String>("06");        
 	        registerSpalte6.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte6"));
-	        registerSpalte6.setMaxWidth(24);
-	        registerSpalte6.setMinWidth(24);
+	        registerSpalte6.setStyle("-fx-alignment: center;");
+	        registerSpalte6.setMaxWidth(34);
+	        registerSpalte6.setMinWidth(34);
+	        registerSpalte6.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte6.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 6;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte7 = new TableColumn<RegisterClass, String>("07");        
 	        registerSpalte7.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte7"));
-	        registerSpalte7.setMaxWidth(24);
-	        registerSpalte7.setMinWidth(24);
+	        registerSpalte7.setStyle("-fx-alignment: center;");
+	        registerSpalte7.setMaxWidth(34);
+	        registerSpalte7.setMinWidth(34);
+	        registerSpalte7.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte7.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 7;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte8 = new TableColumn<RegisterClass, String>("08");        
 	        registerSpalte8.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte8"));
-	        registerSpalte8.setMaxWidth(24);
-	        registerSpalte8.setMinWidth(24);
+	        registerSpalte8.setStyle("-fx-alignment: center;");
+	        registerSpalte8.setMaxWidth(34);
+	        registerSpalte8.setMinWidth(34);
+	        registerSpalte8.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte8.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 8;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalte9 = new TableColumn<RegisterClass, String>("09");        
 	        registerSpalte9.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalte9"));
-	        registerSpalte9.setMaxWidth(24);
-	        registerSpalte9.setMinWidth(24);
+	        registerSpalte9.setStyle("-fx-alignment: center;");
+	        registerSpalte9.setMaxWidth(34);
+	        registerSpalte9.setMinWidth(34);
+	        registerSpalte9.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalte9.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 9;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteA = new TableColumn<RegisterClass, String>("0A");        
 	        registerSpalteA.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteA"));
-	        registerSpalteA.setMaxWidth(24);
-	        registerSpalteA.setMinWidth(24);
+	        registerSpalteA.setStyle("-fx-alignment: center;");
+	        registerSpalteA.setMaxWidth(34);
+	        registerSpalteA.setMinWidth(34);
+	        registerSpalteA.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteA.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 10;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteB = new TableColumn<RegisterClass, String>("0B");        
 	        registerSpalteB.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteB"));
-	        registerSpalteB.setMaxWidth(24);
-	        registerSpalteB.setMinWidth(24);
+	        registerSpalteB.setStyle("-fx-alignment: center;");
+	        registerSpalteB.setMaxWidth(34);
+	        registerSpalteB.setMinWidth(34);
+	        registerSpalteB.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteB.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 11;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteC = new TableColumn<RegisterClass, String>("0C");        
 	        registerSpalteC.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteC"));
-	        registerSpalteC.setMaxWidth(24);
-	        registerSpalteC.setMinWidth(24);
+	        registerSpalteC.setStyle("-fx-alignment: center;");
+	        registerSpalteC.setMaxWidth(34);
+	        registerSpalteC.setMinWidth(34);
+	        registerSpalteC.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteC.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 12;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteD = new TableColumn<RegisterClass, String>("0D");        
 	        registerSpalteD.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteD"));
-	        registerSpalteD.setMaxWidth(24);
-	        registerSpalteD.setMinWidth(24);
+	        registerSpalteD.setStyle("-fx-alignment: center;");
+	        registerSpalteD.setMaxWidth(34);
+	        registerSpalteD.setMinWidth(34);
+	        registerSpalteD.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteD.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 13;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteE = new TableColumn<RegisterClass, String>("0E");        
 	        registerSpalteE.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteE"));
-	        registerSpalteE.setMaxWidth(24);
-	        registerSpalteE.setMinWidth(24);
+	        registerSpalteE.setStyle("-fx-alignment: center;");
+	        registerSpalteE.setMaxWidth(34);
+	        registerSpalteE.setMinWidth(34);
+	        registerSpalteE.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteE.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 14;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();        		
+	                }
+	            }
+	        );
 	        
 	        registerSpalteF = new TableColumn<RegisterClass, String>("0F");        
 	        registerSpalteF.setCellValueFactory(new PropertyValueFactory<RegisterClass, String>("spalteF"));
-	        registerSpalteF.setMaxWidth(24);
-	        registerSpalteF.setMinWidth(24);
+	        registerSpalteF.setStyle("-fx-alignment: center;");
+	        registerSpalteF.setMaxWidth(34);
+	        registerSpalteF.setMinWidth(34);
+	        registerSpalteF.setCellFactory(TextFieldTableCell.forTableColumn());
+	        registerSpalteF.setOnEditCommit( 
+	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
+	        		@Override
+	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			//Wert einlesen
+	        			int x = 15;
+	        			int wert = Integer.valueOf(t.getNewValue(),16);
+	        			int y = t.getTablePosition().getRow();
+	        			codeReader.setRegister(x,y,wert);
+	        			System.out.println();
+	        			//View refreshen
+	        			refreshView();	        		
+	                }
+	            }
+	        );
 	        
 
 	    // Tabellenerzeugung  Register
@@ -312,9 +610,8 @@ public class MyController implements Initializable{
 		
 		if(!data.isEmpty()){//Nur wenn bereits ein Program geladen wurde 
 		
-		runable++;
-		
-		if(runable==1){
+		if(runable){
+		runable=false;
 		taskRun = new Task<Integer>() {
 		    @Override protected Integer call() throws Exception {
 		    	RunProgram(false, speed);		   
@@ -336,12 +633,11 @@ public class MyController implements Initializable{
         
 		if(!data.isEmpty()){//Nur wenn bereits ein Program geladen wurde 
 		
-		runable++;
-		
-		if(runable==1){
+		if(runable){
+		runable=false;
 		taskRun = new Task<Integer>() {
 		    @Override protected Integer call() throws Exception {
-		    	RunProgram(true, 100);		   
+		    	RunProgram(true, 10);		   
 		    	
 		        return textLine;
 		    }
@@ -358,14 +654,14 @@ public class MyController implements Initializable{
 //Beim Klicken auf Stop wird das laufende Programm angehalten
 	
 	public void StopProgramm(ActionEvent event){
-		runable=0;
+		runable=true;
 	}
 
 //Beim Klicken kann eine Datei ausgewählt werden und der Inhalt der Textdatei eingefügt werden
 	public void InsertText(ActionEvent event){
 //Kann nur ausgeführt werden, wenn Program nicht gestartet
 		
-	if(runable==0){
+	if(runable){
 //vorherige Tabelleninhalte löschen		
 		tableViewText.getColumns().clear();	
 
@@ -446,6 +742,13 @@ public class MyController implements Initializable{
         tableViewText.getColumns().add(col3);    
         
 // View refreshen
+       //springe an Stelle pc=0;
+        while(true){
+        	if(!col1.getCellData(textLine).equals("")){
+				if(Integer.parseInt(col1.getCellData(textLine),16)==0)break;
+        	}
+        	textLine++;
+        }
       //FocusLine berechnen 						
 		if(!(textLine>=focusLine 
 				&& textLine<= focusLine + 12)) focusLine = textLine-6;
@@ -458,7 +761,7 @@ public class MyController implements Initializable{
 //Beim Klicken auf Reset werden alle Register zurückgesetzt
 	public void Reset(ActionEvent event){
 		
-		if(runable==0){//Kann nur ausgeführt werden, wenn Program gestoppt ist		
+		if(runable){//Kann nur ausgeführt werden, wenn Program gestoppt ist		
 		//Reset der Register
 		textLine = 0;
 		codeReader.resetRegister();
@@ -472,11 +775,15 @@ public class MyController implements Initializable{
 		}
 	}
 
+//Beim Klicken wird die Laufzeit zurückgesetzt
+	public void actZurücksetzen(ActionEvent event){
+		laufzeit=0;	
+		refreshView();
+	}
+
 //Methode, die das eingelesene Programm ausführt
 	public void RunProgram(boolean steps, int geschwindigkeit){
 		 while(true){			 	
-				
-			 	if(runable==0)break;
 			 
 			 	if(!col1.getCellData(textLine).equals("")){
 					if(Integer.parseInt(col1.getCellData(textLine),16)==codeReader.getPc()){
@@ -486,16 +793,35 @@ public class MyController implements Initializable{
 						
 						//Breakpoint abfragen 						
 						if (data.get(textLine).getColumn0().
-								selectedProperty().get()){
-							runable = 0;
-							break;
+							selectedProperty().get()){
+							runable = true;
 						}
 						
 						//FocusLine berechnen 						
 						if(!(textLine>=focusLine 
 								&& textLine<= focusLine + 12)) focusLine = textLine-6;
 						
+						//View refresh
+						Platform.runLater(new Runnable() {
+		                     @Override public void run() {
+		                         refreshView();  
+		                        
+		                     }
+		                 });
+												
+						/* Aussprungpunkt:
+						 * Abfrage ob Program gestopt wurde, 
+						 * 1  durch drücken auf Stop-Button,
+						 * 2. durch setzen eines Breakpoints,
+						 * 3. wenn Step ausgeführt werden soll.
+						 */
+						
+						if(runable){
+							break;
+						}
+						
 						//Sleep Funktion um Geschwindigkeit zu regeln
+						
 						try {
 							Thread.sleep(geschwindigkeit);							
 						} catch (InterruptedException e) {
@@ -518,20 +844,11 @@ public class MyController implements Initializable{
 						} else if (rueck==3) {	//Sprung
 							
 						}
-						
-						//View refresh
-						Platform.runLater(new Runnable() {
-		                     @Override public void run() {
-		                         refreshView();  
-		                        
-		                     }
-		                 });
-						
+												
 						// Abfragen, ob nur ein Schritt ausgeführt werden soll.
 						if(steps){
 							textLine = 0;
-							runable = 0;
-							break;
+							runable = true;
 						}else{
 						/*Text wieder ab Zeile 0 durchsuchen:  
 						 * deshalb auf -1 setzen, da textLine anschließend noch um 1 erhöht wird.
@@ -550,9 +867,33 @@ public class MyController implements Initializable{
 //Methode, die nach jeder Änderung aufgerufen wird, um die View zu aktualisieren
  	public void refreshView(){
  	
- 	//Laufzeit
- 		DecimalFormat df = new DecimalFormat("#.##");
- 		txtLaufzeit.setText(df.format(codeReader.getCycles()));
+ 	//Hardwareansteuerung
+ 		if(!runable)btnAux.setDisable(true);
+ 		else btnAux.setDisable(false);
+ 		
+ 		if(btnAux.selectedProperty().get())codeReader.refreshAuxPort();
+ 		
+ 	//Frequenzgenerator
+ 		if(taktA0){
+ 			if(codeReader.getCycles()*quarzfrequenz/100>takt){
+ 				takt++;
+ 				if(codeReader.bitTest(5, 0, 0))codeReader.clearBit(5, 0, 0);
+ 				else codeReader.setBit(5, 0, 0);
+ 			}
+ 		}
+ 	
+ 	//Quarzfrequnenz
+ 		if(!runable)txtQuarzfrequenz.setEditable(false);
+ 		else txtQuarzfrequenz.setEditable(true);
+ 		quarzfrequenz=(1/Double.valueOf(txtQuarzfrequenz.getText()))*4; 		
+ 		
+ 	//Laufzeit 		
+ 		laufzeit+=(codeReader.getCycles()-alterWertCycles)*quarzfrequenz;
+ 		alterWertCycles=codeReader.getCycles();
+ 		txtLaufzeit.setText(df.format(laufzeit));
+ 	
+ 	//Portvisualisierung
+ 		refreshPortView(); 		
  		
  	//Register
  		registerBeschriftung.setVisible(false);
@@ -566,68 +907,279 @@ public class MyController implements Initializable{
 	//Stack
 		colBeschriftung.setVisible(false);
 		colBeschriftung.setVisible(true);
-		tableViewStack.getSelectionModel().select(codeReader.getStackpointer());
-		
-	//PortA
-		if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
-		else btnPortA0.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(5, 0, 1))btnPortA1.selectedProperty().set(true);
-		else btnPortA1.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(5, 0, 2))btnPortA2.selectedProperty().set(true);
-		else btnPortA2.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(5, 0, 3))btnPortA3.selectedProperty().set(true);
-		else btnPortA3.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(5, 0, 4))btnPortA4.selectedProperty().set(true);
-		else btnPortA4.selectedProperty().set(false);
-		
-	//Port B
-		if(codeReader.bitTest(6, 0, 0))btnPortB0.selectedProperty().set(true);
-		else btnPortB0.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 1))btnPortB1.selectedProperty().set(true);
-		else btnPortB1.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 2))btnPortB2.selectedProperty().set(true);
-		else btnPortB2.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 3))btnPortB3.selectedProperty().set(true);
-		else btnPortB3.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 4))btnPortB4.selectedProperty().set(true);
-		else btnPortB4.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 5))btnPortB5.selectedProperty().set(true);
-		else btnPortB5.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 6))btnPortB6.selectedProperty().set(true);
-		else btnPortB6.selectedProperty().set(false);
-		
-		if(codeReader.bitTest(6, 0, 7))btnPortB7.selectedProperty().set(true);
-		else btnPortB7.selectedProperty().set(false);
+		tableViewStack.getSelectionModel().select(codeReader.getStackpointer());	
 	}
 
  /*
- * Methoden, die beim Klicken auf die Radio-Buttons aufgerufen werden
+ * Methode, die die Visualisirung der Ports aktualisiert
  */
- 	public void portB_0(ActionEvent event){
- 		/*if(PortB_0.isSelected()){
- 		 		
- 		codeReader.setBit(6, 0, 0);
- 		refreshView();
- 		}else{
- 			codeReader.clearBit(6, 0, 0);
- 			refreshView();
- 		}
- 		
- 		if (true){
- 			PortB_0.selectedProperty().set(false);
- 		}
- 		
- 		*/
+ 	
+ 	public void refreshPortView(){		
+			/*
+			 * Wenn Hardwareangebunden, dann sperre Eingabe über die Portvisualisierung
+			 * und zeige die Werte aus Register an
+			 */
+		if(btnAux.isSelected()){
+				btnPortA0.setDisable(true);
+				if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
+				else btnPortA0.selectedProperty().set(false);
+				
+				btnPortA1.setDisable(true);
+				if(codeReader.bitTest(5, 0, 1))btnPortA1.selectedProperty().set(true);
+				else btnPortA1.selectedProperty().set(false);
+				
+				btnPortA2.setDisable(true);
+				if(codeReader.bitTest(5, 0, 2))btnPortA2.selectedProperty().set(true);
+				else btnPortA2.selectedProperty().set(false);
+								
+				btnPortA3.setDisable(true);
+				if(codeReader.bitTest(5, 0, 3))btnPortA3.selectedProperty().set(true);
+				else btnPortA3.selectedProperty().set(false);
+				
+				btnPortA4.setDisable(true);
+				if(codeReader.bitTest(5, 0, 4))btnPortA4.selectedProperty().set(true);
+				else btnPortA4.selectedProperty().set(false);
+				
+				btnPortB0.setDisable(true);
+				if(codeReader.bitTest(6, 0, 0))btnPortB0.selectedProperty().set(true);
+				else btnPortB0.selectedProperty().set(false);
+				
+				btnPortB1.setDisable(true);
+				if(codeReader.bitTest(6, 0, 1))btnPortB1.selectedProperty().set(true);
+				else btnPortB1.selectedProperty().set(false);
+				
+				btnPortB2.setDisable(true);
+				if(codeReader.bitTest(6, 0, 2))btnPortB2.selectedProperty().set(true);
+				else btnPortB2.selectedProperty().set(false);
+								
+				btnPortB3.setDisable(true);
+				if(codeReader.bitTest(6, 0, 3))btnPortB3.selectedProperty().set(true);
+				else btnPortB3.selectedProperty().set(false);
+				
+				btnPortB4.setDisable(true);
+				if(codeReader.bitTest(6, 0, 4))btnPortB4.selectedProperty().set(true);
+				else btnPortB4.selectedProperty().set(false);
+				
+				btnPortB5.setDisable(true);
+				if(codeReader.bitTest(6, 0, 5))btnPortB5.selectedProperty().set(true);
+				else btnPortB5.selectedProperty().set(false);				
+				
+				btnPortB6.setDisable(true);
+				if(codeReader.bitTest(6, 0, 6))btnPortB6.selectedProperty().set(true);
+				else btnPortB6.selectedProperty().set(false);
+								
+				btnPortB7.setDisable(true);
+				if(codeReader.bitTest(6, 0, 7))btnPortB7.selectedProperty().set(true);
+				else btnPortB7.selectedProperty().set(false);
+				
+		}else{
+				/*
+				 * Wenn keine Hardwareanbindung, können Eingangs-Ports nur über die Port-Visualisierung 
+				 * bearbeitet werden und Ausgangsports nur über das Programm. 
+				 * 
+				 */
+		//PortA
+			if(!codeReader.bitTest(5, 8, 0)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung		
+				if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
+				else btnPortA0.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortA0.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortA0.selectedProperty().get())codeReader.setBit(5, 0, 0);
+				else codeReader.clearBit(5, 0, 0);
+				//...und gebe Button frei
+				btnPortA0.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(5, 8, 1)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+				if(codeReader.bitTest(5, 0, 1))btnPortA1.selectedProperty().set(true);
+				else btnPortA1.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortA1.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortA1.selectedProperty().get())codeReader.setBit(5, 0, 1);
+				else codeReader.clearBit(5, 0, 1);
+				//...und gebe Button frei
+				btnPortA1.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(5, 8, 2)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+				if(codeReader.bitTest(5, 0, 2))btnPortA2.selectedProperty().set(true);
+				else btnPortA2.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortA2.setDisable(true);		
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortA2.selectedProperty().get())codeReader.setBit(5, 0, 2);
+				else codeReader.clearBit(5, 0, 2);
+				//...und gebe Button frei
+				btnPortA2.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(5, 8, 3)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+				if(codeReader.bitTest(5, 0, 3))btnPortA3.selectedProperty().set(true);
+				else btnPortA3.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortA3.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortA3.selectedProperty().get())codeReader.setBit(5, 0, 3);
+				else codeReader.clearBit(5, 0, 3);
+				//...und gebe Button frei
+				btnPortA3.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(5, 8, 4)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(5, 0, 4))btnPortA4.selectedProperty().set(true);
+				else btnPortA4.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortA4.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortA4.selectedProperty().get())codeReader.setBit(5, 0, 4);
+				else codeReader.clearBit(5, 0, 4);
+				//...und gebe Button frei
+				btnPortA4.setDisable(false);
+			}
+			
+		//Port B
+			if(!codeReader.bitTest(6, 8, 0)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 0))btnPortB0.selectedProperty().set(true);
+				else btnPortB0.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB0.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB0.selectedProperty().get())codeReader.setBit(6, 0, 0);
+				else codeReader.clearBit(6, 0, 0);
+				//...und gebe Button frei
+				btnPortB0.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 1)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 1))btnPortB1.selectedProperty().set(true);
+				else btnPortB1.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB1.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB1.selectedProperty().get())codeReader.setBit(6, 0, 1);
+				else codeReader.clearBit(6, 0, 1);
+				//...und gebe Button frei
+				btnPortB1.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 2)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 2))btnPortB2.selectedProperty().set(true);
+				else btnPortB2.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB2.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB2.selectedProperty().get())codeReader.setBit(6, 0, 2);
+				else codeReader.clearBit(6, 0, 2);
+				//...und gebe Button frei
+				btnPortB2.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 3)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 3))btnPortB3.selectedProperty().set(true);
+				else btnPortB3.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB3.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB3.selectedProperty().get())codeReader.setBit(6, 0, 3);
+				else codeReader.clearBit(6, 0, 3);
+				//...und gebe Button frei
+				btnPortB3.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 4)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 4))btnPortB4.selectedProperty().set(true);
+				else btnPortB4.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB4.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB4.selectedProperty().get())codeReader.setBit(6, 0, 4);
+				else codeReader.clearBit(6, 0, 4);
+				//...und gebe Button frei
+				btnPortB4.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 5)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 5))btnPortB5.selectedProperty().set(true);
+				else btnPortB5.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB5.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB5.selectedProperty().get())codeReader.setBit(6, 0, 5);
+				else codeReader.clearBit(6, 0, 5);
+				//...und gebe Button frei
+				btnPortB5.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 6)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 6))btnPortB6.selectedProperty().set(true);
+				else btnPortB6.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB6.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB6.selectedProperty().get())codeReader.setBit(6, 0, 6);
+				else codeReader.clearBit(6, 0, 6);
+				//...und gebe Button frei
+				btnPortB6.setDisable(false);
+			}
+			
+			if(!codeReader.bitTest(6, 8, 7)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+				if(codeReader.bitTest(6, 0, 7))btnPortB7.selectedProperty().set(true);
+				else btnPortB7.selectedProperty().set(false);
+				//...und sperre den Button
+				btnPortB7.setDisable(true);
+			}else{ //Wenn Pin ein Eingang, übergib Wert der Visualisierung an Register
+				if(btnPortB7.selectedProperty().get())codeReader.setBit(6, 0, 7);
+				else codeReader.clearBit(6, 0, 7);
+				//...und gebe Button frei
+				btnPortB7.setDisable(false);
+			}
+		}
+ 	}
+ 	
+ 	
+ /*
+  * Methoden, die beim Klicken auf die Radio-Buttons aufgerufen werden
+ */
+ 	
+ 	public void actAux(){
+  			if(btnAux.isSelected()){
+ 				boxAux.setDisable(true);
+ 				auxStop=false;
+ 				codeReader.connectAuxPort(boxAux.getValue()); 
+  					taskRefreshPorts = new Task<Integer>() {
+ 					    @Override protected Integer call() throws Exception {
+ 					    	while(true){
+ 					    	if(!runable||auxStop)break;
+ 					    	try {
+ 								Thread.sleep(500);							
+ 							} catch (InterruptedException e) {
+ 								// TODO Auto-generated catch block
+ 								e.printStackTrace();
+ 							} 					    	
+ 					    	//View refresh
+ 							Platform.runLater(new Runnable() {
+ 			                     @Override public void run() {
+ 			                         refreshView();  
+ 			                        
+ 			                     }
+ 			                 });
+ 					    	}
+ 					        return 0; 					     
+ 					    } 					    
+  					};
+ 					
+ 					thPorts = new Thread(taskRefreshPorts);
+ 					thPorts.setDaemon(true);
+ 					thPorts.start();			
+ 					
+ 			}else {
+ 				auxStop=true;
+ 				boxAux.setDisable(false);
+ 				codeReader.closeAuxPort();
+ 				refreshView();
+ 			}
  	}
  	
  	public void actSchnell(){
@@ -635,7 +1187,7 @@ public class MyController implements Initializable{
  		if(!btnSchnell.isSelected()){ 
  			btnSchnell.selectedProperty().set(true);
  		}else{//Wenn nicht bereits ausgewählt
- 			if (runable==0){//Nur wenn Programm gestoppt
+ 			if (runable){//Nur wenn Programm gestoppt
  				//Setze die anderen Buttons auf false
  				btnMittel.selectedProperty().set(false);
  				btnLangsam.selectedProperty().set(false);
@@ -654,7 +1206,7 @@ public class MyController implements Initializable{
  		if(!btnMittel.isSelected()){ 
  			btnMittel.selectedProperty().set(true);
  		}else{//Wenn nicht bereits ausgewählt
- 			if (runable==0){//Nur wenn Programm gestoppt
+ 			if (runable){//Nur wenn Programm gestoppt
  				//Setze die anderen Buttons auf false
  				btnSchnell.selectedProperty().set(false);
  				btnLangsam.selectedProperty().set(false);
@@ -673,7 +1225,7 @@ public class MyController implements Initializable{
  		if(!btnLangsam.isSelected()){ 
  			btnLangsam.selectedProperty().set(true);
  		}else{//Wenn nicht bereits ausgewählt
- 			if (runable==0){//Nur wenn Programm gestoppt
+ 			if (runable){//Nur wenn Programm gestoppt
  				//Setze die anderen Buttons auf false
  				btnSchnell.selectedProperty().set(false);
  				btnMittel.selectedProperty().set(false);
@@ -689,191 +1241,9 @@ public class MyController implements Initializable{
  	
 //Ports
  	
- 	public void actPortA0(){
- 		if(codeReader.bitTest(5, 8, 0)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortA0.isSelected()){//Setze Bit
- 				codeReader.setBit(5, 0, 0);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(5, 0, 0);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortA0.isSelected())btnPortA0.selectedProperty().set(false);
- 			else btnPortA0.selectedProperty().set(true);
- 		}
- 		
- 	}
- 	public void actPortA1(){
- 		if(codeReader.bitTest(5, 8, 1)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortA1.isSelected()){//Setze Bit
- 				codeReader.setBit(5, 0, 1);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(5, 0, 1);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortA1.isSelected())btnPortA1.selectedProperty().set(false);
- 			else btnPortA1.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortA2(){
- 		if(codeReader.bitTest(5, 8, 2)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortA2.isSelected()){//Setze Bit
- 				codeReader.setBit(5, 0, 2);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(5, 0, 2);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortA2.isSelected())btnPortA2.selectedProperty().set(false);
- 			else btnPortA2.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortA3(){
- 		if(codeReader.bitTest(5, 8, 3)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortA3.isSelected()){//Setze Bit
- 				codeReader.setBit(5, 0, 3);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(5, 0, 3);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortA3.isSelected())btnPortA3.selectedProperty().set(false);
- 			else btnPortA3.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortA4(){
- 		if(codeReader.bitTest(5, 8, 4)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortA4.isSelected()){//Setze Bit
- 				codeReader.setBit(5, 0, 4);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(5, 0, 4);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortA4.isSelected())btnPortA4.selectedProperty().set(false);
- 			else btnPortA4.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB0(){
- 		if(codeReader.bitTest(6, 8, 0)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB0.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 0);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 0);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB0.isSelected())btnPortB0.selectedProperty().set(false);
- 			else btnPortB0.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB1(){
- 		if(codeReader.bitTest(6, 8, 1)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB1.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 1);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 1);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB1.isSelected())btnPortB1.selectedProperty().set(false);
- 			else btnPortB1.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB2(){
- 		if(codeReader.bitTest(6, 8, 2)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB2.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 2);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 2);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB2.isSelected())btnPortB2.selectedProperty().set(false);
- 			else btnPortB2.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB3(){
- 		if(codeReader.bitTest(6, 8, 3)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB3.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 3);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 3);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB3.isSelected())btnPortB3.selectedProperty().set(false);
- 			else btnPortB3.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB4(){
- 		if(codeReader.bitTest(6, 8, 4)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB4.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 4);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 4);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB4.isSelected())btnPortB4.selectedProperty().set(false);
- 			else btnPortB4.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB5(){
- 		if(codeReader.bitTest(6, 8, 5)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB5.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 5);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 5);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB5.isSelected())btnPortB5.selectedProperty().set(false);
- 			else btnPortB5.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB6(){
- 		if(codeReader.bitTest(6, 8, 6)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB6.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 6);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 6);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB6.isSelected())btnPortB6.selectedProperty().set(false);
- 			else btnPortB6.selectedProperty().set(true);
- 		}
- 	}
- 	public void actPortB7(){
- 		if(codeReader.bitTest(6, 8, 7)){//Wenn Bit im Tis-Register gesetz->Eingang
- 			if(btnPortB7.isSelected()){//Setze Bit
- 				codeReader.setBit(6, 0, 7);
- 				refreshView();
- 			}else{//Lösche Bit
- 				codeReader.clearBit(6, 0, 7);
- 				refreshView();
- 			}
- 		}else{//Kein Eingang->Button behält seinen Wert
- 			if(btnPortB7.isSelected())btnPortB7.selectedProperty().set(false);
- 			else btnPortB7.selectedProperty().set(true);
- 		}
- 	}
- 	
- 	
+ 	public void actPorts(){ 		
+ 		refreshView(); 		
+ 	}	
 
 
 

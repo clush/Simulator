@@ -1,6 +1,9 @@
 package application;
 
-import java.text.DecimalFormat;
+
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,13 +19,14 @@ public class CodeReader {
 	private int stackPointer;
 	private ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
 	private ObservableList<StackClass> dataStack = FXCollections.observableArrayList();
-	private double cycles;
+	private int cycles;
+	private AuxPort aux = null;
 		
 	public CodeReader() {
 		this.pc=0;
 		this.Code=0;
 		this.stackPointer = 0;
-		double cycles = 0;
+		int cycles = 0;
 		}	
 
 	public int read (String code){
@@ -602,8 +606,8 @@ public class CodeReader {
 		return stackPointer;
 	}
 	
-	public double getCycles(){			
-		return cycles * 122.07;
+	public int getCycles(){			
+		return cycles;
 	}
 	
 
@@ -634,10 +638,11 @@ public class CodeReader {
 			}
 		}
 		//Register, die nicht null sind
-		setRegister(3,0,24);
-		setRegister(1,8,255);
-		setRegister(5,8,255);
-		setRegister(6,8,255);
+		setRegister(3,0,24);//STATUS
+		setRegister(1,8,255);//Option-Reg
+		setRegister(5,8,255);//TrisA
+		setRegister(6,8,255);//TrisB
+		setRegister(4,0,32);//FSR
 		
 		//Stack
 		for(int i=0;i<8;i++){
@@ -728,6 +733,7 @@ public class CodeReader {
 				dataRegister.get(8).setSpalten(x,(wert));
 			} //FSR
 			else if(x==4){
+				if(wert==0)wert=32;
 				dataRegister.get(0).setSpalten(x,(wert));
 				dataRegister.get(8).setSpalten(x,(wert));
 			} //PCLATH
@@ -759,4 +765,55 @@ public class CodeReader {
 	private int mask(int bit){
 		return (int)(Math.pow(2, bit));
 	}
+	
+	public void connectAuxPort(String auxPort) {
+        int trisA, trisB, portA, portB;
+        trisA = getRegister(5,8);
+        trisB = getRegister(6,8);
+        portA = getRegister(5,0);
+        portB = getRegister(6,0);
+        aux = new AuxPort(trisA, portA, trisB, portB);
+        try {
+            aux.connect(auxPort);
+        } catch (Exception ex) {
+            Logger.getLogger(CodeReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Schließt die aktuelle Verbindung und setzt ComPort-Objekt auf null.
+     */
+    public void closeAuxPort() {
+        aux.close();
+        aux = null;
+    }
+
+    /**
+     * Kommuniziert mit COM-Port. Gibt TRIS und Port Werte an COM aus
+     * und liest neue Port Werte ein.
+     */
+    public void refreshAuxPort() {
+        int trisA, trisB, portA, portB;
+        trisA = getRegister(5,8);
+        trisB = getRegister(6,8);
+        portA = getRegister(5,0);
+        portB = getRegister(6,0);
+        aux.updatePortA(portA);
+        aux.updatePortB(portB);
+        aux.updateTrisA(trisA);
+        aux.updateTrisB(trisB);
+
+        portA = aux.getInputPortA();
+        portB = aux.getInputPortB();
+
+        setRegister(5,0,portA);
+        setRegister(6,0,portB);
+    }
+
+    /**
+     * @return the aux
+     */
+    public AuxPort getAux() {
+        return aux;
+    }
 }

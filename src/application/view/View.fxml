@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="694.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.MyController">
+<AnchorPane prefHeight="694.0" prefWidth="825.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.controller.MyController">
    <children>
       <Button fx:id="btnStart" layoutX="67.0" layoutY="34.0" mnemonicParsing="false" onAction="#StartProgramm" text="Start" />
       <Label fx:id="txtBar" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="261.0" text="© Claus Burkhart and Thomas Coenen" />
@@ -20,10 +20,9 @@
          </columnResizePolicy>
       </TableView>
       <Button fx:id="btnInsert" layoutX="14.0" layoutY="34.0" mnemonicParsing="false" onAction="#InsertText" text="Open" />
-      <TableView fx:id="tableViewRegister" layoutX="14.0" layoutY="442.0" prefHeight="240.0" prefWidth="423.0" />
+      <TableView fx:id="tableViewRegister" editable="true" layoutX="14.0" layoutY="442.0" prefHeight="240.0" prefWidth="589.0" />
       <Button layoutX="115.0" layoutY="34.0" mnemonicParsing="false" onAction="#StopProgramm" text="Stop" />
       <Button fx:id="btn_Step" layoutX="213.0" layoutY="34.0" mnemonicParsing="false" onAction="#Steps" text="Steps" />
-      <Button fx:id="btntest" layoutX="515.0" layoutY="66.0" mnemonicParsing="false" onAction="#Test" text="Test" />
       <Button fx:id="btnReset" layoutX="162.0" layoutY="34.0" mnemonicParsing="false" onAction="#Reset" text="Reset" />
       <GridPane layoutX="284.0" layoutY="12.0" prefHeight="45.0" prefWidth="221.0">
         <columnConstraints>
@@ -43,8 +42,8 @@
             <RadioButton fx:id="btnLangsam" mnemonicParsing="false" onAction="#actLangsam" onDragDetected="#actLangsam" prefHeight="17.0" prefWidth="75.0" text="langsam" GridPane.columnIndex="2" GridPane.rowIndex="2" />
          </children>
       </GridPane>
-      <TableView fx:id="tableViewStack" layoutX="634.0" layoutY="463.0" prefHeight="219.0" prefWidth="97.0" />
-      <GridPane layoutX="452.0" layoutY="430.0" prefHeight="25.0" prefWidth="126.0">
+      <TableView fx:id="tableViewStack" layoutX="748.0" layoutY="440.0" prefHeight="240.0" prefWidth="62.0" />
+      <GridPane layoutX="616.0" layoutY="442.0" prefHeight="25.0" prefWidth="126.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="91.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="49.0" minWidth="10.0" prefWidth="35.0" />
@@ -65,11 +64,11 @@
             </Text>
          </children>
       </GridPane>
-      <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="451.0" layoutY="465.0" prefHeight="215.0" prefWidth="166.0" AnchorPane.leftAnchor="451.0">
+      <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="616.0" layoutY="480.0" prefHeight="200.0" prefWidth="117.0" AnchorPane.leftAnchor="616.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="56.0" minWidth="10.0" prefWidth="40.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="72.0" minWidth="10.0" prefWidth="63.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="63.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="56.0" minWidth="10.0" prefWidth="28.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="72.0" minWidth="10.0" prefWidth="43.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="43.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -83,88 +82,89 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Pin" textAlignment="CENTER" wrappingWidth="40.41796875" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="40.13671875" GridPane.rowIndex="1" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="1" textAlignment="CENTER" wrappingWidth="41.13671875" GridPane.rowIndex="2" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="2" textAlignment="CENTER" wrappingWidth="41.13671875" GridPane.rowIndex="3" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="3" textAlignment="CENTER" wrappingWidth="41.13671875" GridPane.rowIndex="4" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="4" textAlignment="CENTER" wrappingWidth="41.13671875" GridPane.rowIndex="5" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="5" textAlignment="CENTER" wrappingWidth="40.13671875" GridPane.rowIndex="6" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER" wrappingWidth="41.13671875" GridPane.rowIndex="7" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="7" textAlignment="CENTER" wrappingWidth="42.13671875" GridPane.rowIndex="8" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Port A" textAlignment="CENTER" wrappingWidth="65.13671875" GridPane.columnIndex="1" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Port B" textAlignment="CENTER" wrappingWidth="58.15625" GridPane.columnIndex="2" />
-            <RadioButton fx:id="btnPortB0" mnemonicParsing="false" onAction="#actPortB0" prefHeight="17.0" prefWidth="29.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Pin" textAlignment="CENTER" wrappingWidth="25.41796875" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" textAlignment="CENTER" wrappingWidth="27.13671875" GridPane.rowIndex="1" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="1" textAlignment="CENTER" wrappingWidth="25.13671875" GridPane.rowIndex="2" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="2" textAlignment="CENTER" wrappingWidth="25.13671875" GridPane.rowIndex="3" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="3" textAlignment="CENTER" wrappingWidth="26.13671875" GridPane.rowIndex="4" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="4" textAlignment="CENTER" wrappingWidth="26.13671875" GridPane.rowIndex="5" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="5" textAlignment="CENTER" wrappingWidth="27.13671875" GridPane.rowIndex="6" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER" wrappingWidth="27.13671875" GridPane.rowIndex="7" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="7" textAlignment="CENTER" wrappingWidth="26.13671875" GridPane.rowIndex="8" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Port A" textAlignment="CENTER" wrappingWidth="40.13671875" GridPane.columnIndex="1" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Port B" textAlignment="CENTER" wrappingWidth="42.15625" GridPane.columnIndex="2" />
+            <RadioButton fx:id="btnPortB0" mnemonicParsing="false" onAction="#actPorts" prefHeight="17.0" prefWidth="29.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB1" mnemonicParsing="false" onAction="#actPortB1" GridPane.columnIndex="2" GridPane.rowIndex="2">
+            <RadioButton fx:id="btnPortB1" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="2">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB2" mnemonicParsing="false" onAction="#actPortB2" GridPane.columnIndex="2" GridPane.rowIndex="3">
+            <RadioButton fx:id="btnPortB2" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="3">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB3" mnemonicParsing="false" onAction="#actPortB3" GridPane.columnIndex="2" GridPane.rowIndex="4">
+            <RadioButton fx:id="btnPortB3" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="4">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB4" mnemonicParsing="false" onAction="#actPortB4" GridPane.columnIndex="2" GridPane.rowIndex="5">
+            <RadioButton fx:id="btnPortB4" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="5">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB5" mnemonicParsing="false" onAction="#actPortB5" GridPane.columnIndex="2" GridPane.rowIndex="6">
+            <RadioButton fx:id="btnPortB5" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="6">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB6" mnemonicParsing="false" onAction="#actPortB6" GridPane.columnIndex="2" GridPane.rowIndex="7">
+            <RadioButton fx:id="btnPortB6" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="7">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortB7" mnemonicParsing="false" onAction="#actPortB7" GridPane.columnIndex="2" GridPane.rowIndex="8">
+            <RadioButton fx:id="btnPortB7" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="2" GridPane.rowIndex="8">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortA0" mnemonicParsing="false" onAction="#actPortA0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <RadioButton fx:id="btnPortA0" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortA1" mnemonicParsing="false" onAction="#actPortA1" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <RadioButton fx:id="btnPortA1" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortA2" mnemonicParsing="false" onAction="#actPortA2" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <RadioButton fx:id="btnPortA2" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortA3" mnemonicParsing="false" onAction="#actPortA3" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <RadioButton fx:id="btnPortA3" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
-            <RadioButton fx:id="btnPortA4" mnemonicParsing="false" onAction="#actPortA4" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <RadioButton fx:id="btnPortA4" mnemonicParsing="false" onAction="#actPorts" GridPane.columnIndex="1" GridPane.rowIndex="5">
                <GridPane.margin>
-                  <Insets left="24.0" />
+                  <Insets left="14.0" />
                </GridPane.margin>
             </RadioButton>
          </children>
       </GridPane>
-      <GridPane layoutX="598.0" layoutY="26.0" prefHeight="17.0" prefWidth="133.0">
+      <GridPane layoutX="535.0" layoutY="34.0" prefHeight="25.0" prefWidth="261.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="67.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="66.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="61.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="69.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="133.0" minWidth="10.0" prefWidth="80.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -175,12 +175,52 @@
                   <Font size="14.0" />
                </font>
             </Text>
-            <Text fx:id="txtLaufzeit" strokeType="OUTSIDE" strokeWidth="0.0" text="00" GridPane.columnIndex="1">
+            <Text fx:id="txtLaufzeit" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="84.09375" GridPane.columnIndex="1">
                <font>
                   <Font size="14.0" />
                </font>
             </Text>
+            <Button mnemonicParsing="false" onAction="#actZurücksetzen" text="zurücksetzen" GridPane.columnIndex="2" />
          </children>
       </GridPane>
+      <GridPane layoutX="535.0" layoutY="85.0" prefHeight="25.0" prefWidth="213.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="84.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="79.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="85.0" minWidth="10.0" prefWidth="46.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Quarzfrequenz" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="MHz" GridPane.columnIndex="2">
+               <GridPane.margin>
+                  <Insets left="5.0" />
+               </GridPane.margin>
+            </Text>
+            <TextField fx:id="txtQuarzfrequenz" prefHeight="25.0" prefWidth="58.0" text="0.5" GridPane.columnIndex="1" />
+         </children>
+      </GridPane>
+      <GridPane layoutX="533.0" layoutY="127.0" prefHeight="31.0" prefWidth="275.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="131.0" minWidth="10.0" prefWidth="124.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="157.0" minWidth="10.0" prefWidth="83.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="157.0" minWidth="10.0" prefWidth="78.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hardware-Anbindung:" />
+            <RadioButton fx:id="btnAux" mnemonicParsing="false" onAction="#actAux" text="ein/aus" GridPane.columnIndex="1">
+               <GridPane.margin>
+                  <Insets left="10.0" />
+               </GridPane.margin>
+            </RadioButton>
+            <ChoiceBox fx:id="boxAux" prefWidth="150.0" GridPane.columnIndex="2" />
+         </children>
+      </GridPane>
+      <Button fx:id="btntest" layoutX="526.0" layoutY="248.0" mnemonicParsing="false" onAction="#Test" text="Test" />
    </children>
 </AnchorPane>
