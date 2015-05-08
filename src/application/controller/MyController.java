@@ -23,6 +23,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
@@ -31,6 +32,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -122,6 +125,8 @@ public class MyController implements Initializable{
 	private RadioButton btnPortB6;
 	@FXML
 	private RadioButton btnPortB7;
+	@FXML
+	private Button btnInsert;
 	
 //Choice-Box
 	@FXML
@@ -130,7 +135,7 @@ public class MyController implements Initializable{
 //Text-Felder
 	
 	@FXML
-	private Text txt_wRegister;
+	private TextField txt_wRegister;
 	
 	@FXML
 	private TextField txtQuarzfrequenz;
@@ -152,7 +157,8 @@ public class MyController implements Initializable{
 	private DecimalFormat df = new DecimalFormat("#.## µs");
 	private double laufzeit=0;
 	private int alterWertCycles=0;
-	private double quarzfrequenz;
+	private double quarzfrequenz=0.5;
+	private double cycleDauer=(1/quarzfrequenz)*4;
 	private int takt=1;
 	private boolean taktA0=false;
 
@@ -165,7 +171,7 @@ public class MyController implements Initializable{
 		
 		codeReader.setBit(5, 0, 0);*/				
 			
-		
+		System.out.println(codeReader.getwRegister());
 		//Refresh View
 		refreshView();
         
@@ -235,15 +241,18 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
-	        			//Wert einlesen
-	        			int x = 0;
-	        			int wert = Integer.valueOf(t.getNewValue(),16);
-	        			int y = t.getTablePosition().getRow();
-	        			codeReader.setRegister(x,y,wert);
-	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();
-	        		
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					//Wert einlesen
+	       				  	int x = 0;
+	       				  	int wert = Integer.valueOf(t.getNewValue(),16);
+	       				  	int y = t.getTablePosition().getRow();
+	       				  	codeReader.setRegister(x,y,wert);
+
+	       				  	//View refreshen
+	       				  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}
 	                }
 	            }
 	        );
@@ -258,14 +267,18 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
 	        			//Wert einlesen
 	        			int x = 1;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -280,14 +293,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 2;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -303,14 +321,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 3;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}      		
 	                }
 	            }
 	        );
@@ -326,14 +349,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 4;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -348,14 +376,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	      
 	        			//Wert einlesen
 	        			int x = 5;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -370,14 +403,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        
 	        			//Wert einlesen
 	        			int x = 6;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -392,14 +430,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 7;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -414,14 +457,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 8;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -436,14 +484,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 9;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}       		
 	                }
 	            }
 	        );
@@ -458,14 +511,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 10;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -480,14 +538,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 11;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -502,14 +565,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 12;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -524,14 +592,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 13;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -546,14 +619,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        		
 	        			//Wert einlesen
 	        			int x = 14;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}        		
 	                }
 	            }
 	        );
@@ -568,14 +646,19 @@ public class MyController implements Initializable{
 	        	new EventHandler<CellEditEvent<RegisterClass, String>>() {
 	        		@Override
 	        		public void handle(CellEditEvent<RegisterClass, String> t) {
+	        			if(t.getNewValue().matches("[0-9a-fA-F]{1,2}")){
+	       					
+	        	
 	        			//Wert einlesen
 	        			int x = 15;
 	        			int wert = Integer.valueOf(t.getNewValue(),16);
 	        			int y = t.getTablePosition().getRow();
 	        			codeReader.setRegister(x,y,wert);
 	        			System.out.println();
-	        			//View refreshen
-	        			refreshView();	        		
+	        		  	refreshView();
+	        			}else{
+	        				refreshView();
+		       			}	        		
 	                }
 	            }
 	        );
@@ -861,6 +944,7 @@ public class MyController implements Initializable{
 				if(col1.getCellData(textLine)==null)break;
 				
 			}
+		 textLine=0;
 		 
 	}
 	
@@ -868,9 +952,7 @@ public class MyController implements Initializable{
  	public void refreshView(){
  	
  	//Hardwareansteuerung
- 		if(!runable)btnAux.setDisable(true);
- 		else btnAux.setDisable(false);
- 		
+ 		btnAux.setDisable(!runable); 		
  		if(btnAux.selectedProperty().get())codeReader.refreshAuxPort();
  		
  	//Frequenzgenerator
@@ -882,25 +964,27 @@ public class MyController implements Initializable{
  			}
  		}
  	
- 	//Quarzfrequnenz
- 		if(!runable)txtQuarzfrequenz.setEditable(false);
- 		else txtQuarzfrequenz.setEditable(true);
- 		quarzfrequenz=(1/Double.valueOf(txtQuarzfrequenz.getText()))*4; 		
+ 	//Quarzfrequnenz 		
+ 		txtQuarzfrequenz.setDisable(!runable);
+ 		txtQuarzfrequenz.setText(String.valueOf(quarzfrequenz));
+		
  		
- 	//Laufzeit 		
- 		laufzeit+=(codeReader.getCycles()-alterWertCycles)*quarzfrequenz;
- 		alterWertCycles=codeReader.getCycles();
+ 	//Laufzeit
+ 		laufzeit+=(codeReader.getCycles()-alterWertCycles)*cycleDauer;
+		alterWertCycles=codeReader.getCycles();
  		txtLaufzeit.setText(df.format(laufzeit));
  	
  	//Portvisualisierung
  		refreshPortView(); 		
  		
  	//Register
+ 		tableViewRegister.setEditable(runable);
  		registerBeschriftung.setVisible(false);
  		registerBeschriftung.setVisible(true);
  		
     //W-Register
-        txt_wRegister.setText(codeReader.getwRegister());	
+        txt_wRegister.setText(codeReader.getwRegister());
+        txt_wRegister.setDisable(!runable);
     //Zu aktueller Zeile scrollen
 		tableViewText.scrollTo(focusLine);
 		
@@ -1247,18 +1331,38 @@ public class MyController implements Initializable{
 
 //Hilfefunktion
  	
- 	/*public void actHilfe() throws IOException{
- 		Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL Datenblatt 16F84.pdf");
- 		System.out.println("test");
- 	}*/
- 
- 	
+  	
  	   public void actHilfe() throws Exception {
  	     Process p = 
  	         Runtime.getRuntime()
  	           .exec("rundll32 url.dll,FileProtocolHandler Datenblatt 16F84.pdf");
  	     p.waitFor(); 	    
  	     }
+ 	   
+ 	   
+ 	  public void actWregister(KeyEvent event){
+ 		  if(event.getCode()==KeyCode.ENTER){
+ 			  if(txt_wRegister.getText().matches("[0-9a-fA-F]{1,2}")){
+ 				  codeReader.setwRegister(Integer.valueOf(txt_wRegister.getText(),16));
+ 				  refreshView();
+ 			  }else{
+ 				  refreshView();
+ 			  }
+ 		  }
+ 	  }
+ 	  
+ 	 public void actQuarzfrequenz(KeyEvent event){
+		  if(event.getCode()==KeyCode.ENTER){
+			 
+			  if(txtQuarzfrequenz.getText().matches("[0-9]{1,4}\\.{0,1}[0-9]{0,8}")){				 
+				  quarzfrequenz=Double.valueOf(txtQuarzfrequenz.getText());
+				  cycleDauer=(1/quarzfrequenz)*4;
+				  refreshView();
+			  }else{
+				  refreshView();				  
+			  }
+		  }
+	  }
  	   
 }
 

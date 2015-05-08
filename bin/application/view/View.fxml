@@ -57,11 +57,7 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Text>
-            <Text fx:id="txt_wRegister" strokeType="OUTSIDE" strokeWidth="0.0" text="00" wrappingWidth="28.13671875" GridPane.columnIndex="1">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-            </Text>
+            <TextField fx:id="txt_wRegister" onKeyPressed="#actWregister" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="616.0" layoutY="480.0" prefHeight="200.0" prefWidth="117.0" AnchorPane.leftAnchor="616.0">
@@ -199,7 +195,7 @@
                   <Insets left="5.0" />
                </GridPane.margin>
             </Text>
-            <TextField fx:id="txtQuarzfrequenz" prefHeight="25.0" prefWidth="58.0" text="0.5" GridPane.columnIndex="1" />
+            <TextField fx:id="txtQuarzfrequenz" onKeyPressed="#actQuarzfrequenz" prefHeight="25.0" prefWidth="58.0" text="0.5" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <GridPane layoutX="521.0" layoutY="193.0" prefHeight="31.0" prefWidth="275.0">

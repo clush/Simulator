@@ -19,19 +19,28 @@ public class CodeReader {
 	private int stackPointer;
 	private ObservableList<RegisterClass> dataRegister = FXCollections.observableArrayList();
 	private ObservableList<StackClass> dataStack = FXCollections.observableArrayList();
-	private int cycles;
+	private int cycles=0;
+	private int cyclesAlt=0;
+	private boolean Ra4Alt=false;
+	private int prescaler=0;
+	private int prescalCounter=0;
+	private int ps123=0;
+	private boolean writeTimer0=true;
 	private AuxPort aux = null;
 		
 	public CodeReader() {
 		this.pc=0;
 		this.Code=0;
 		this.stackPointer = 0;
+		@SuppressWarnings("unused")
 		int cycles = 0;
 		}	
 
 	public int read (String code){
 	//Übergabe des neuen Codes
 		this.Code = Integer.parseInt(code,16);
+		
+	
 	/*
 	 * Im folgenden wird geprüft um welchen Befehl es sich handelt 
 	 * und die entsprchende Methode aufgerufen
@@ -69,15 +78,15 @@ public class CodeReader {
 		
 		else if((Code & 0x3E00) == 0x3E00)ADDLW();
 		else if((Code & 0x3F00) == 0x3900)ANDLW();
-		else if((Code & 0x3800) == 0x2000){CALL(); 		return 3;}	//TODO PCLATH?
+		else if((Code & 0x3800) == 0x2000)CALL();	//TODO PCLATH?
 		else if((Code & 0x3FFF) == 0x0064)CLRWDT(); //TODO
-		else if((Code & 0x3800) == 0x2800){GOTO(); 		return 3;}   //TODO PCLATH?
+		else if((Code & 0x3800) == 0x2800)GOTO();   //TODO PCLATH?
 		else if((Code & 0x3F00) == 0x3800)IORLW();
 		else if((Code & 0x3C00) == 0x3000)MOVLW();
-		else if((Code & 0x3FFF) == 0x0009){RETFIE(); 	return 3;} //TODO
-		else if((Code & 0x3C00) == 0x3400){RETLW(); 	return 3;}
-		else if((Code & 0x3FFF) == 0x0008){RETURN(); 	return 3;}
-		else if((Code & 0x3FFF) == 0x0063){SLEEP(); 	return 2;} //TODO: TO? PD? Rückgabewert in Whileschleife abfangen
+		else if((Code & 0x3FFF) == 0x0009)RETFIE(); //TODO
+		else if((Code & 0x3C00) == 0x3400)RETLW(); 
+		else if((Code & 0x3FFF) == 0x0008)RETURN();
+		else if((Code & 0x3FFF) == 0x0063)SLEEP(); //TODO: TO? PD? 
 		else if((Code & 0x3E00) == 0x3C00)SUBLW();
 		else if((Code & 0x3F00) == 0x3A00)XORLW();
 	
@@ -85,11 +94,111 @@ public class CodeReader {
 		else{
 		increasePc();
 		return 1;
-		}				
+		}
+		
+		//Timer bearbeiten
+			changeTimer0();
+		//Interrupts prüfen
+		interrupt();
+		
 	return 0;
 	}
 	
 	
+	private void interrupt() {
+		if(bitTest(11,0,7)){
+			
+		}
+		
+	}
+
+	private void changeTimer0() {
+		//Berechnung des Prescalers
+		if(bitTest(1,8,0))ps123=1;
+		else ps123=0;
+		
+		if(bitTest(1,8,1))ps123+=2;
+		else ps123+=0;
+		
+		if(bitTest(1,8,2))ps123+=4;
+		else ps123+=0;		
+		
+		if(!bitTest(1,8,5)){	//Timer0 im Timer mode
+			
+			if(!bitTest(1,8,3)){   	//Wenn Prescaler eingeschaltet			
+				prescaler=(int)Math.pow(2, ps123+1);
+			}else{					//ohne Prescaler
+				prescaler=1; 
+			}
+			
+			prescalCounter+=(cycles-cyclesAlt);		
+			
+			
+			if(prescalCounter>=prescaler){ //Prescaler erreicht
+				//Zurücksetzen des Counters
+				prescalCounter-=prescaler;
+				int wert;
+				
+				if(!bitTest(1,8,3)){   	//Wenn Prescaler eingeschaltet			
+					wert=getRegister(1,0)+1;
+					
+				}else{					//ohne Prescaler
+					wert=getRegister(1,0)+1+prescalCounter;
+					prescalCounter=0;
+				}				
+											
+				
+				//Abspeichern
+				writeTimer0=false;
+				setRegister(1,0,wert);
+				writeTimer0=true;
+				
+			}
+			
+		}else{					//Timer0 im Counter mode
+			
+			//Abfrage, ob Prescaler eingeschaltet ist;
+			
+			if(!bitTest(1,8,3)){   	//Prescaler eingeschaltet			
+				prescaler=(int)Math.pow(2, ps123+1);
+			}else{					//ohne Prescaler
+				prescaler=1; 
+			}			
+			
+			//Abfrage, ob bei steigender oder fallender Flanke erhöht werden soll
+			
+			if(bitTest(1,8,4)){ 	//Wenn TOSE-Bit gesetzt, zähle hoch bei fallender Flanke
+				if(Ra4Alt && !bitTest(5,0,4)){ 
+					prescalCounter++;	
+				}
+			}else{					////Wenn TOSE-Bit nicht gesetzt, zähle hoch bei steigender Flanke
+				if(!Ra4Alt && bitTest(5,0,4)){ 
+					prescalCounter++;	
+				}		
+			}
+			
+			//Abfrage, ob Counter erhöht werden kann
+			
+			if(prescalCounter>=prescaler){ //Prescaler erreicht
+				//Zurücksetzen des Counters
+				prescalCounter=0;
+				int wert;				
+											
+				wert=getRegister(1,0)+1;
+				//Abspeichern
+				writeTimer0=false;
+				setRegister(1,0,wert);
+				writeTimer0=true;
+				
+			}
+		}
+		
+		
+		//Abspeichern des alten Cycle-Wertes und Ra4-Wertes
+		cyclesAlt=cycles;
+		Ra4Alt=bitTest(5,0,4);
+	}
+
 	private void SLEEP() {
 		//Erhöhen des Programmzählers
 			increasePc();
@@ -585,7 +694,7 @@ public class CodeReader {
 
 	public String getwRegister() {
 		if(Integer.valueOf(wRegister)<=0xF)return 0+Integer.toHexString(wRegister);
-		else return Integer.toHexString(wRegister);
+		else return Integer.toHexString(wRegister).toUpperCase();
 	}
 	
 	
@@ -722,7 +831,18 @@ public class CodeReader {
 				x = getRegister(4,0)&0x0F;
 				y = (getRegister(4,0)&0xF0)/16;
 				dataRegister.get(y).setSpalten(x, wert);
-			} //PC
+			}//TMR0
+			else if(x==1&&y==0){
+				if(writeTimer0){
+					prescaler=0;
+					if(!bitTest(1,8,5))prescalCounter-=2;					
+				}				
+				dataRegister.get(y).setSpalten(x, wert);
+			}//Option-Register
+			else if(x==1&&y==8){
+				prescalCounter=0;				
+				dataRegister.get(y).setSpalten(x, wert);
+			}//PC			
 			else if(x==2){
 				pc = wert;
 				dataRegister.get(0).setSpalten(x, wert);
