@@ -21,10 +21,12 @@ public class CodeReader {
 	private ObservableList<StackClass> dataStack = FXCollections.observableArrayList();
 	private int cycles=0;
 	private int cyclesAlt=0;
-	private boolean Ra4Alt=false;
+	private boolean ra4Alt=false;
 	private int prescaler=0;
 	private int prescalCounter=0;
 	private int ps123=0;
+	private boolean rb0Alt=false;
+	private int rb47Alt=0;
 	private boolean writeTimer0=true;
 	private AuxPort aux = null;
 		
@@ -99,19 +101,64 @@ public class CodeReader {
 		//Timer bearbeiten
 			changeTimer0();
 		//Interrupts prüfen
-		interrupt();
+		interruptTest();
 		
 	return 0;
 	}
 	
 	
-	private void interrupt() {
+	private void interruptTest() {
 		if(bitTest(11,0,7)){
+			//Timer0-Interrupt
+			if(bitTest(11,0,2)&&bitTest(11,0,5)){
+				interrupt();
+			}
+				
+			//RB0/INT - Interrupt
+			
+			if(bitTest(1,8,6)){		//Interrupt bei steigender Flanke
+				if(bitTest(6,0,0)&&!rb0Alt){
+					setBit(11,0,1);
+					interrupt();
+				}
+			}else{					//Interrupt bei fallender Flanke
+				if(!bitTest(6,0,0)&&rb0Alt){
+					setBit(11,0,1);
+					interrupt();
+				}
+			}			
+			
+			
+			//PortB-Interrupt
+			
+			if((getRegister(6,0)&0xF0)!=rb47Alt){
+				setBit(11,0,0);
+				interrupt();
+			}
 			
 		}
 		
+		
+		//Abspeichern des alten Wertes von RB0
+		rb0Alt = bitTest(6,0,0);
+		
+		//Abspeichern der alten Wertes von RB4 - RB7
+		rb47Alt = getRegister(6,0)&0xF0;
 	}
+		
+	
 
+	private void interrupt(){
+		clearBit(11,0,7);
+		//Stackpointer nach rechts rotieren
+		if(stackPointer>=7)stackPointer=0;
+		else stackPointer++;
+		//Abspeichern der Programmstelle der nächsten Operation im Stack
+		dataStack.get(stackPointer).setStack(pc);
+		pc=4;
+	}
+	
+	
 	private void changeTimer0() {
 		//Berechnung des Prescalers
 		if(bitTest(1,8,0))ps123=1;
@@ -146,7 +193,12 @@ public class CodeReader {
 					wert=getRegister(1,0)+1+prescalCounter;
 					prescalCounter=0;
 				}				
-											
+						
+				
+				//TIMER0-Interrupt überprüfen
+				if(wert>0xFF){
+					setBit(11,0,2);
+				}
 				
 				//Abspeichern
 				writeTimer0=false;
@@ -168,11 +220,11 @@ public class CodeReader {
 			//Abfrage, ob bei steigender oder fallender Flanke erhöht werden soll
 			
 			if(bitTest(1,8,4)){ 	//Wenn TOSE-Bit gesetzt, zähle hoch bei fallender Flanke
-				if(Ra4Alt && !bitTest(5,0,4)){ 
+				if(ra4Alt && !bitTest(5,0,4)){ 
 					prescalCounter++;	
 				}
 			}else{					////Wenn TOSE-Bit nicht gesetzt, zähle hoch bei steigender Flanke
-				if(!Ra4Alt && bitTest(5,0,4)){ 
+				if(!ra4Alt && bitTest(5,0,4)){ 
 					prescalCounter++;	
 				}		
 			}
@@ -185,6 +237,12 @@ public class CodeReader {
 				int wert;				
 											
 				wert=getRegister(1,0)+1;
+				
+				//TIMER0-Interrupt überprüfen
+				if(wert>0xFF){					
+					setBit(11,0,2);
+				}
+				
 				//Abspeichern
 				writeTimer0=false;
 				setRegister(1,0,wert);
@@ -193,10 +251,11 @@ public class CodeReader {
 			}
 		}
 		
+				
 		
 		//Abspeichern des alten Cycle-Wertes und Ra4-Wertes
 		cyclesAlt=cycles;
-		Ra4Alt=bitTest(5,0,4);
+		ra4Alt=bitTest(5,0,4);
 	}
 
 	private void SLEEP() {
@@ -255,9 +314,11 @@ public class CodeReader {
 	}
 
 	private void RETFIE() {
-		//Erhöhen des Programmzählers
-			cycles++;
-			increasePc();
+		//Zurückspringen an in Stack gespeicherte Addresse
+		setPc(dataStack.get(stackPointer).getStackInd());
+		//StackPointer nach links rotieren
+		if(stackPointer<=0)stackPointer=7;
+		else stackPointer--;
 		
 	}
 
@@ -459,7 +520,8 @@ public class CodeReader {
 
 	private void RLF() {
 		//Berechnung
-			int result = getFile()*2;		 	
+			int result = getFile()*2;
+			if(bitTest(3,0,0)) result += 1; 
 		//Setzen/Löschen der Status-Bits
 		 	setCarryBit(result>0xFF);
 		 //Abspeichern
@@ -834,13 +896,9 @@ public class CodeReader {
 			}//TMR0
 			else if(x==1&&y==0){
 				if(writeTimer0){
-					prescaler=0;
+					prescalCounter=0;
 					if(!bitTest(1,8,5))prescalCounter-=2;					
 				}				
-				dataRegister.get(y).setSpalten(x, wert);
-			}//Option-Register
-			else if(x==1&&y==8){
-				prescalCounter=0;				
 				dataRegister.get(y).setSpalten(x, wert);
 			}//PC			
 			else if(x==2){

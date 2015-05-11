@@ -158,20 +158,21 @@ public class MyController implements Initializable{
 	private double laufzeit=0;
 	private int alterWertCycles=0;
 	private double quarzfrequenz=0.5;
-	private double cycleDauer=(1/quarzfrequenz)*4;
-	private int takt=1;
+	private double cycleDauer=(1/quarzfrequenz)*4; //in µs
+	private double extTakt = 10;
+	private double extTaktDauer=(1/extTakt)*1000; //in µs
 	private boolean taktA0=false;
 
 //Methode zum Testen einzelner Befehle
 	public void Test(ActionEvent event){
 	
 		
-		/*if(taktA0)taktA0=false;
+		if(taktA0)taktA0=false;
 		else taktA0=true;
 		
-		codeReader.setBit(5, 0, 0);*/				
+		codeReader.setBit(5, 0, 0);			
 			
-		System.out.println(codeReader.getwRegister());
+		//System.out.println(codeReader.getwRegister());
 		//Refresh View
 		refreshView();
         
@@ -957,8 +958,8 @@ public class MyController implements Initializable{
  		
  	//Frequenzgenerator
  		if(taktA0){
- 			if(codeReader.getCycles()*quarzfrequenz/100>takt){
- 				takt++;
+ 			if(codeReader.getCycles()*cycleDauer>extTaktDauer){
+ 				extTaktDauer+=(1/extTakt)*1000;
  				if(codeReader.bitTest(5, 0, 0))codeReader.clearBit(5, 0, 0);
  				else codeReader.setBit(5, 0, 0);
  			}
@@ -1063,7 +1064,7 @@ public class MyController implements Initializable{
 				 * 
 				 */
 		//PortA
-			if(!codeReader.bitTest(5, 8, 0)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung		
+			if(!codeReader.bitTest(5, 8, 0)||taktA0){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung		
 				if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
 				else btnPortA0.selectedProperty().set(false);
 				//...und sperre den Button
