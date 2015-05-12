@@ -11,6 +11,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
+import application.AuxPort;
 import application.CodeReader;
 import application.RegisterClass;
 import application.StackClass;
@@ -173,22 +174,6 @@ public class MyController implements Initializable{
 	private double timeOnTakt=0;
 	private boolean taktOn=false;
 	private int taktPort=-1;
-
-//Methode zum Testen einzelner Befehle
-	public void Test(ActionEvent event){
-	
-		
-		if(taktOn)taktOn=false;
-		else taktOn=true;
-		
-		codeReader.setBit(5, 0, 0);			
-			
-		//System.out.println(codeReader.getwRegister());
-		//Refresh View
-		refreshView();
-        
-		
-	}
 	
 	
 //Methode zur Initialisierung der Register- und Stackt-Tabelle	
@@ -197,11 +182,12 @@ public class MyController implements Initializable{
 	
 	//ChoiceBox für Hardwareansteuerung initialiseiren
 		
-		boxAux.getItems().addAll(
-				"COM1",
-				"COM2",
-				"COM3");
-		boxAux.setValue("COM1");
+		boxAux.getItems().addAll(AuxPort.getAllPorts());
+		if(AuxPort.getAllPorts().isEmpty()){
+			btnAux.setDisable(true);
+			boxAux.setDisable(true);
+		}else boxAux.setValue(AuxPort.getAllPorts().get(0));
+		
 		
 	//ChoiceBox für Hardwareansteuerung initialiseiren
 		
@@ -984,8 +970,10 @@ public class MyController implements Initializable{
  	public void refreshView(){
  	
  	//Hardwareansteuerung
- 		btnAux.setDisable(!runable); 		
- 		if(btnAux.selectedProperty().get())codeReader.refreshAuxPort();
+ 		if(!AuxPort.getAllPorts().isEmpty()){
+ 			btnAux.setDisable(!runable); 		
+ 			if(btnAux.selectedProperty().get())codeReader.refreshAuxPort();
+ 		}
  		
  	//Frequenzgenerator
  		if(taktOn){
@@ -1311,6 +1299,7 @@ public class MyController implements Initializable{
  	
  	public void actAux(){
   			if(btnAux.isSelected()){
+  			if(!(boxAux.getValue()==null)){
  				boxAux.setDisable(true);
  				btnExTakt.setDisable(true);
  				auxStop=false;
@@ -1339,7 +1328,8 @@ public class MyController implements Initializable{
  					
  					thPorts = new Thread(taskRefreshPorts);
  					thPorts.setDaemon(true);
- 					thPorts.start();			
+ 					thPorts.start();	
+  		}else btnAux.selectedProperty().set(false);
  					
  			}else {
  				auxStop=true;

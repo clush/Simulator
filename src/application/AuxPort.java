@@ -1,7 +1,16 @@
 package application;
 
 import gnu.io.CommPort;
+
+
+
+
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
@@ -43,6 +52,23 @@ public class AuxPort {
         trisB = aTrisB;
         portB = aPortB;
     }
+    
+    @SuppressWarnings("rawtypes")
+    public static List<String> getAllPorts(){
+
+       	
+        List<String> list = new ArrayList<String>();
+        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+
+       	
+        while (portList.hasMoreElements()) {
+    CommPortIdentifier portID = (CommPortIdentifier) portList.nextElement();
+    if (portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+    list.add(portID.getName());
+    }
+    }
+        return list;
+        }
 
     /** Methode um den CommPort zu vebinden.
      * @param portName Vom Typ STRING enthält den Namen des ausgewählten CommPorts
