@@ -126,11 +126,15 @@ public class MyController implements Initializable{
 	@FXML
 	private RadioButton btnPortB7;
 	@FXML
+	private RadioButton btnExTakt;
+	@FXML
 	private Button btnInsert;
 	
 //Choice-Box
 	@FXML
 	private ChoiceBox<String> boxAux;
+	@FXML
+	private ChoiceBox<String> boxExTakt;
 	
 //Text-Felder
 	
@@ -139,6 +143,9 @@ public class MyController implements Initializable{
 	
 	@FXML
 	private TextField txtQuarzfrequenz;
+	
+	@FXML
+	private TextField txtExTakt;
 	
 	@FXML
 	private Text txtLaufzeit;
@@ -157,18 +164,22 @@ public class MyController implements Initializable{
 	private DecimalFormat df = new DecimalFormat("#.## µs");
 	private double laufzeit=0;
 	private int alterWertCycles=0;
+	private int alterWertCyclesExtTakt=0;
 	private double quarzfrequenz=0.5;
 	private double cycleDauer=(1/quarzfrequenz)*4; //in µs
 	private double extTakt = 10;
-	private double extTaktDauer=(1/extTakt)*1000; //in µs
-	private boolean taktA0=false;
+	private double extTaktDauer=(1/extTakt)*1000/2; //in µs
+	private double extTaktTimer=0;					//in µs
+	private double timeOnTakt=0;
+	private boolean taktOn=false;
+	private int taktPort=-1;
 
 //Methode zum Testen einzelner Befehle
 	public void Test(ActionEvent event){
 	
 		
-		if(taktA0)taktA0=false;
-		else taktA0=true;
+		if(taktOn)taktOn=false;
+		else taktOn=true;
 		
 		codeReader.setBit(5, 0, 0);			
 			
@@ -184,13 +195,33 @@ public class MyController implements Initializable{
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 	
-	//ChoiceBox initialiseiren
+	//ChoiceBox für Hardwareansteuerung initialiseiren
 		
 		boxAux.getItems().addAll(
 				"COM1",
 				"COM2",
 				"COM3");
 		boxAux.setValue("COM1");
+		
+	//ChoiceBox für Hardwareansteuerung initialiseiren
+		
+		boxExTakt.getItems().addAll(
+				"RA0",
+				"RA1",
+				"RA2",
+				"RA3",
+				"RA4",
+				"RB0",
+				"RB1",
+				"RB2",
+				"RB3",
+				"RB4",
+				"RB5",
+				"RB6",
+				"RB7");
+		boxExTakt.setValue("RA0");
+	
+	
 	//Geschwindigkeit auf mittel stellen
 		
 		btnMittel.selectedProperty().set(true);		
@@ -957,13 +988,17 @@ public class MyController implements Initializable{
  		if(btnAux.selectedProperty().get())codeReader.refreshAuxPort();
  		
  	//Frequenzgenerator
- 		if(taktA0){
- 			if(codeReader.getCycles()*cycleDauer>extTaktDauer){
- 				extTaktDauer+=(1/extTakt)*1000;
- 				if(codeReader.bitTest(5, 0, 0))codeReader.clearBit(5, 0, 0);
- 				else codeReader.setBit(5, 0, 0);
+ 		if(taktOn){
+ 			timeOnTakt+=(codeReader.getCycles()-alterWertCyclesExtTakt)*cycleDauer;
+ 			
+ 			if(timeOnTakt>extTaktTimer){
+ 				extTaktTimer+=extTaktDauer;
+ 				refreshExTakt();
  			}
  		}
+ 		
+ 		alterWertCyclesExtTakt=codeReader.getCycles();
+ 		txtExTakt.setText(String.valueOf(extTakt));
  	
  	//Quarzfrequnenz 		
  		txtQuarzfrequenz.setDisable(!runable);
@@ -1064,7 +1099,7 @@ public class MyController implements Initializable{
 				 * 
 				 */
 		//PortA
-			if(!codeReader.bitTest(5, 8, 0)||taktA0){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung		
+			if(!codeReader.bitTest(5, 8, 0)||taktPort==0){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung		
 				if(codeReader.bitTest(5, 0, 0))btnPortA0.selectedProperty().set(true);
 				else btnPortA0.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1076,7 +1111,7 @@ public class MyController implements Initializable{
 				btnPortA0.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(5, 8, 1)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+			if(!codeReader.bitTest(5, 8, 1)||taktPort==1){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
 				if(codeReader.bitTest(5, 0, 1))btnPortA1.selectedProperty().set(true);
 				else btnPortA1.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1088,7 +1123,7 @@ public class MyController implements Initializable{
 				btnPortA1.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(5, 8, 2)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+			if(!codeReader.bitTest(5, 8, 2)||taktPort==2){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
 				if(codeReader.bitTest(5, 0, 2))btnPortA2.selectedProperty().set(true);
 				else btnPortA2.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1100,7 +1135,7 @@ public class MyController implements Initializable{
 				btnPortA2.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(5, 8, 3)){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
+			if(!codeReader.bitTest(5, 8, 3)||taktPort==3){//Wenn Pin ein Ausgang, übergib Register-Wert an Visualisieurung
 				if(codeReader.bitTest(5, 0, 3))btnPortA3.selectedProperty().set(true);
 				else btnPortA3.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1112,7 +1147,7 @@ public class MyController implements Initializable{
 				btnPortA3.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(5, 8, 4)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(5, 8, 4)||taktPort==4){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(5, 0, 4))btnPortA4.selectedProperty().set(true);
 				else btnPortA4.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1125,7 +1160,7 @@ public class MyController implements Initializable{
 			}
 			
 		//Port B
-			if(!codeReader.bitTest(6, 8, 0)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 0)||taktPort==10){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 0))btnPortB0.selectedProperty().set(true);
 				else btnPortB0.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1137,7 +1172,7 @@ public class MyController implements Initializable{
 				btnPortB0.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 1)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 1)||taktPort==11){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 1))btnPortB1.selectedProperty().set(true);
 				else btnPortB1.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1149,7 +1184,7 @@ public class MyController implements Initializable{
 				btnPortB1.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 2)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 2)||taktPort==12){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 2))btnPortB2.selectedProperty().set(true);
 				else btnPortB2.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1161,7 +1196,7 @@ public class MyController implements Initializable{
 				btnPortB2.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 3)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 3)||taktPort==13){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 3))btnPortB3.selectedProperty().set(true);
 				else btnPortB3.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1173,7 +1208,7 @@ public class MyController implements Initializable{
 				btnPortB3.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 4)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 4)||taktPort==14){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 4))btnPortB4.selectedProperty().set(true);
 				else btnPortB4.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1185,7 +1220,7 @@ public class MyController implements Initializable{
 				btnPortB4.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 5)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 5)||taktPort==15){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 5))btnPortB5.selectedProperty().set(true);
 				else btnPortB5.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1197,7 +1232,7 @@ public class MyController implements Initializable{
 				btnPortB5.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 6)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 6)||taktPort==16){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 6))btnPortB6.selectedProperty().set(true);
 				else btnPortB6.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1209,7 +1244,7 @@ public class MyController implements Initializable{
 				btnPortB6.setDisable(false);
 			}
 			
-			if(!codeReader.bitTest(6, 8, 7)){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
+			if(!codeReader.bitTest(6, 8, 7)||taktPort==17){//Wenn Pin ein Ausgang, übergib Wert an Visualisieurung
 				if(codeReader.bitTest(6, 0, 7))btnPortB7.selectedProperty().set(true);
 				else btnPortB7.selectedProperty().set(false);
 				//...und sperre den Button
@@ -1223,6 +1258,52 @@ public class MyController implements Initializable{
 		}
  	}
  	
+ 	public void refreshExTakt(){
+ 		
+			if ((taktPort==0) && codeReader.bitTest(5,8,0)){
+				if(codeReader.bitTest(5, 0, 0))codeReader.clearBit(5, 0, 0);
+				else codeReader.setBit(5, 0, 0);
+			}else if ((taktPort==1) && codeReader.bitTest(5,8,1)){
+				if(codeReader.bitTest(5, 0, 1))codeReader.clearBit(5, 0, 1);
+				else codeReader.setBit(5, 0, 1);
+			}else if ((taktPort==2) && codeReader.bitTest(5,8,2)){
+				if(codeReader.bitTest(5, 0, 2))codeReader.clearBit(5, 0, 2);
+				else codeReader.setBit(5, 0, 2);
+			}else if ((taktPort==3) && codeReader.bitTest(5,8,3)){
+				if(codeReader.bitTest(5, 0, 3))codeReader.clearBit(5, 0, 3);
+				else codeReader.setBit(5, 0, 3);
+			}else if ((taktPort==4) && codeReader.bitTest(5,8,4)){
+				if(codeReader.bitTest(5, 0, 4))codeReader.clearBit(5, 0, 4);
+				else codeReader.setBit(5, 0, 4);
+			}
+			 else if ((taktPort==10) && codeReader.bitTest(6,8,0)){
+				if(codeReader.bitTest(6, 0, 0))codeReader.clearBit(6, 0, 0);
+				else codeReader.setBit(6, 0, 0);
+			}else if ((taktPort==11) && codeReader.bitTest(6,8,1)){
+				if(codeReader.bitTest(6, 0, 1))codeReader.clearBit(6, 0, 1);
+				else codeReader.setBit(6, 0, 1);
+			}else if ((taktPort==12) && codeReader.bitTest(6,8,2)){
+				if(codeReader.bitTest(6, 0, 2))codeReader.clearBit(6, 0, 2);
+				else codeReader.setBit(6, 0, 2);
+			}else if ((taktPort==13) && codeReader.bitTest(6,8,3)){
+				if(codeReader.bitTest(6, 0, 3))codeReader.clearBit(6, 0, 3);
+				else codeReader.setBit(6, 0, 3);
+			}else if ((taktPort==14) && codeReader.bitTest(6,8,4)){
+				if(codeReader.bitTest(6, 0, 4))codeReader.clearBit(6, 0, 4);
+				else codeReader.setBit(6, 0, 4);
+			}else if ((taktPort==15) && codeReader.bitTest(6,8,5)){
+				if(codeReader.bitTest(6, 0, 5))codeReader.clearBit(6, 0, 5);
+				else codeReader.setBit(6, 0, 5);
+			}else if ((taktPort==16) && codeReader.bitTest(6,8,6)){
+				if(codeReader.bitTest(6, 0, 6))codeReader.clearBit(6, 0, 6);
+				else codeReader.setBit(6, 0, 6);
+			}else if ((taktPort==17) && codeReader.bitTest(6,8,7)){
+				if(codeReader.bitTest(6, 0, 7))codeReader.clearBit(6, 0, 7);
+				else codeReader.setBit(6, 0, 7);
+			} 		
+ 		
+ 	}
+ 	
  	
  /*
   * Methoden, die beim Klicken auf die Radio-Buttons aufgerufen werden
@@ -1231,6 +1312,7 @@ public class MyController implements Initializable{
  	public void actAux(){
   			if(btnAux.isSelected()){
  				boxAux.setDisable(true);
+ 				btnExTakt.setDisable(true);
  				auxStop=false;
  				codeReader.connectAuxPort(boxAux.getValue()); 
   					taskRefreshPorts = new Task<Integer>() {
@@ -1262,6 +1344,7 @@ public class MyController implements Initializable{
  			}else {
  				auxStop=true;
  				boxAux.setDisable(false);
+ 				btnExTakt.setDisable(false);
  				codeReader.closeAuxPort();
  				refreshView();
  			}
@@ -1364,6 +1447,60 @@ public class MyController implements Initializable{
 			  }
 		  }
 	  }
+ 	 
+ 	 public void actTxtExTakt(KeyEvent event){
+ 		 if(event.getCode()==KeyCode.ENTER){
+			 
+			  if(txtExTakt.getText().matches("[0-9]{1,4}\\.{0,1}[0-9]{0,4}")){				 
+				  extTakt=Double.valueOf(txtExTakt.getText());
+				  extTaktDauer=(1/extTakt)*1000/2;
+				  refreshView();
+			  }else{
+				  refreshView();				  
+			  }
+		  }
+ 	 }
+ 	 
+ 	 public void actBtnExTakt(){
+ 		if(btnExTakt.isSelected()){
+				taktOn=true;
+				extTaktTimer=0;
+				timeOnTakt=0;
+				
+				if(boxExTakt.getValue().equals("RA0"))taktPort=0;
+				else if(boxExTakt.getValue().equals("RA1"))taktPort=1;
+				else if(boxExTakt.getValue().equals("RA2"))taktPort=2;
+				else if(boxExTakt.getValue().equals("RA3"))taktPort=3;
+				else if(boxExTakt.getValue().equals("RA4"))taktPort=4;
+				
+				else if(boxExTakt.getValue().equals("RB0"))taktPort=10;
+				else if(boxExTakt.getValue().equals("RB1"))taktPort=11;
+				else if(boxExTakt.getValue().equals("RB2"))taktPort=12;
+				else if(boxExTakt.getValue().equals("RB3"))taktPort=13;
+				else if(boxExTakt.getValue().equals("RB4"))taktPort=14;
+				else if(boxExTakt.getValue().equals("RB5"))taktPort=15;
+				else if(boxExTakt.getValue().equals("RB6"))taktPort=16;
+				else if(boxExTakt.getValue().equals("RB7"))taktPort=17;
+ 			
+ 				boxExTakt.setDisable(true);
+				txtExTakt.setDisable(true);
+				btnAux.setDisable(true);
+				auxStop=false;
+				
+				refreshView();					
+			}else {
+				taktOn=false;
+				taktPort=-1;
+				auxStop=true;
+				boxExTakt.setDisable(false);
+				txtExTakt.setDisable(false);
+				btnAux.setDisable(false);
+				refreshView();
+			}
+ 	 }
+ 	 
+ 	 
+ 	 
  	   
 }
 

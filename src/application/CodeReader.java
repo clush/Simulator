@@ -28,6 +28,7 @@ public class CodeReader {
 	private boolean rb0Alt=false;
 	private int rb47Alt=0;
 	private boolean writeTimer0=true;
+	private boolean firstSleep=true;
 	private AuxPort aux = null;
 		
 	public CodeReader() {
@@ -119,20 +120,25 @@ public class CodeReader {
 			if(bitTest(1,8,6)){		//Interrupt bei steigender Flanke
 				if(bitTest(6,0,0)&&!rb0Alt){
 					setBit(11,0,1);
-					interrupt();
 				}
 			}else{					//Interrupt bei fallender Flanke
 				if(!bitTest(6,0,0)&&rb0Alt){
 					setBit(11,0,1);
-					interrupt();
 				}
-			}			
+			}
+			
+			if(bitTest(11,0,1)&&bitTest(11,0,4)){
+				interrupt();
+			}
 			
 			
 			//PortB-Interrupt
 			
 			if((getRegister(6,0)&0xF0)!=rb47Alt){
 				setBit(11,0,0);
+			}
+			
+			if(bitTest(11,0,0)&&bitTest(11,0,3)){
 				interrupt();
 			}
 			
@@ -259,8 +265,16 @@ public class CodeReader {
 	}
 
 	private void SLEEP() {
-		//Erhöhen des Programmzählers
-			increasePc();
+		//Erhöhen der Cycles
+		cycles++;
+		if(firstSleep){
+		//Setzen von Status-Bits
+		setBit(3,0,4);
+		clearBit(3,0,3);
+		//Löschen des Watchdogtimers und des Prescalers
+		prescalCounter=0;
+		//wdt=0;
+		}
 		
 	}
 
@@ -346,7 +360,8 @@ public class CodeReader {
 
 	private void GOTO() {
 		
-		setPc(this.Code & 0x07FF);	
+		int wert = (getRegister(10,0) & 0x18)<<9;
+		setPc(wert+this.Code & 0x07FF);	
 		
 	}
 
@@ -365,7 +380,8 @@ public class CodeReader {
 		//Abspeichern der Programmstelle der nächsten Operation im Stack
 			dataStack.get(stackPointer).setStack(pc + 1);
 		//Sprung zu angegebenem Programmstelle 
-			setPc(this.Code & 0x07FF);		
+			int wert = (getRegister(10,0) & 0x18)*512;
+			setPc(wert+this.Code & 0x7FF);							
 	}
 
 	private void ANDLW() {
@@ -786,10 +802,11 @@ public class CodeReader {
 		return pc;
 	}
 
-	private void setPc(int pc) {
+	private void setPc(int wert) {
 		//in entsprechenden Registern speichern
-		setRegister(2, 0, pc);
+		setRegister(2, 0, wert);
 		cycles+=2;
+		
 		
 	}
 	
@@ -801,15 +818,18 @@ public class CodeReader {
 	}
 
 	public void resetRegister(){
-		
+		/*
 		//Register
 		for (int i = 0;i<16;i++){
 			for (int j = 0; j<16;j++){
 				setRegister(j,i,0);
 			}
-		}
-		//Register, die nicht null sind
+		}*/
+		
+		setRegister(2,0,0);//PC
 		setRegister(3,0,24);//STATUS
+		setRegister(10,0,0);//PCLATH
+		setRegister(11,0,0);//INTCON
 		setRegister(1,8,255);//Option-Reg
 		setRegister(5,8,255);//TrisA
 		setRegister(6,8,255);//TrisB
@@ -936,6 +956,10 @@ public class CodeReader {
 		if(x==0 && (y==0 || y==8)){
 			x = getRegister(4,0)&0x0F;
 			y = (getRegister(4,0)&0xF0)/16;
+		}
+			
+		if(x==2 && (y==0 || y==8)){
+				return pc&0xff+((getRegister(10,0)&0x1F)<<8);
 		}
 		return this.dataRegister.get(y).getSpalten(x);
 	}
