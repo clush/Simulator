@@ -968,54 +968,41 @@ public class CodeReader {
 		return (int)(Math.pow(2, bit));
 	}
 	
+	//÷ffnet Verbindung zu Com-Port
+	
 	public void connectAuxPort(String auxPort) {
-        int trisA, trisB, portA, portB;
-        trisA = getRegister(5,8);
-        trisB = getRegister(6,8);
-        portA = getRegister(5,0);
-        portB = getRegister(6,0);
-        aux = new AuxPort(trisA, portA, trisB, portB);
+        aux = new AuxPort(getRegister(5,8), getRegister(5,0), getRegister(6,8), getRegister(6,0));
         try {
             aux.connect(auxPort);
         } catch (Exception ex) {
             Logger.getLogger(CodeReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+   
+     // Schlieﬂt die aktuelle Verbindung 
 
-    /**
-     * Schlieﬂt die aktuelle Verbindung und setzt ComPort-Objekt auf null.
-     */
     public void closeAuxPort() {
         aux.close();
         aux = null;
     }
 
-    /**
-     * Kommuniziert mit COM-Port. Gibt TRIS und Port Werte an COM aus
-     * und liest neue Port Werte ein.
-     */
+    //Verbindung refreshen
+    
     public void refreshAuxPort() {
-        int trisA, trisB, portA, portB;
-        trisA = getRegister(5,8);
-        trisB = getRegister(6,8);
+        int portA, portB;
+        
         portA = getRegister(5,0);
         portB = getRegister(6,0);
-        aux.updatePortA(portA);
-        aux.updatePortB(portB);
-        aux.updateTrisA(trisA);
-        aux.updateTrisB(trisB);
+        aux.setPortA(portA);
+        aux.setPortB(portB);
+        aux.setTrisA(getRegister(5,8));
+        aux.setTrisB(getRegister(6,8));
 
         portA = aux.getInputPortA();
         portB = aux.getInputPortB();
 
         setRegister(5,0,portA);
         setRegister(6,0,portB);
-    }
-
-    /**
-     * @return the aux
-     */
-    public AuxPort getAux() {
-        return aux;
-    }
+    }   
+   
 }

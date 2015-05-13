@@ -15,37 +15,16 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
 public class AuxPort {
-	/** Variable zum zwischenspeichern des TRIS-A Wertes.
-     * Initialisert mit 31, Wert nach Power-On-Reset
-     */
-    private int trisA = 31;
-    /** Variable zum zwischenspeichern des PORT-A Wertes.
-     * Initialisert mit 0, Wert nach Power-On-Reset
-     */
-    private int portA = 0;
-    /** Variable zum zwischenspeichern des TRIS-B Wertes.
-     * Initialisert mit 255, Wert nach Power-On-Reset
-     */
+	
+    private int trisA = 255;
     private int trisB = 255;
-    /** Variable zum zwischenspeichern des PORT-B Wertes.
-     * Initialisert mit 0, Wert nach Power-On-Reset
-     */
+    private int portA = 0;    
     private int portB = 0;
-    /** Variable zum speichern des ausgewählten SerialPort.
-     */
+    
     SerialPort serialPort;
-    /** Variable zum speichern des ausgewählten CommPort.
-     */
     CommPort commPort;
 
-    /** Konstruktor für ComPort.
-     * Initialisiert die Werte von TrisA, TrisB, PortA und PortB, so kann
-     * der CommPort auch im laufenden Betrieb zugeschaltet werden.
-     * @param aTrisA Vom Typ INT enthält den aktuellen Wert des TrisA
-     * @param aPortA Vom Typ INT enthält den aktuellen Wert des PortA
-     * @param aTrisB Vom Typ INT enthält den aktuellen Wert des TrisB
-     * @param aPortB Vom Typ INT enthält den aktuellen Wert des PortB
-     */
+ 
     public AuxPort(int aTrisA, int aPortA, int aTrisB, int aPortB) {
         trisA = aTrisA;
         portA = aPortA;
@@ -62,18 +41,18 @@ public class AuxPort {
 
        	
         while (portList.hasMoreElements()) {
-    CommPortIdentifier portID = (CommPortIdentifier) portList.nextElement();
-    if (portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-    list.add(portID.getName());
-    }
-    }
-        return list;
+        	CommPortIdentifier portID = (CommPortIdentifier) portList.nextElement();
+        	if (portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+        		list.add(portID.getName());
+        	}
         }
+        
+   return list;
+       
+   }
 
-    /** Methode um den CommPort zu vebinden.
-     * @param portName Vom Typ STRING enthält den Namen des ausgewählten CommPorts
-     * @throws Exception
-     */
+    //Methode um den Com-Port zu vebinden.
+    
     public void connect(String portName) throws Exception {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
         if (portIdentifier.isCurrentlyOwned()) {
@@ -82,22 +61,20 @@ public class AuxPort {
             commPort = portIdentifier.open(this.getClass().getName(), 2000);
             serialPort = (SerialPort) commPort;
             serialPort.setSerialPortParams(4800, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-            writeOut();
-            readIn();
+            write();
+            read();
         }
     }
 
-    /** Methode um den aktuell verbundenen CommPort zu trennen und wieder frei zu geben.
-     */
+    //Methode um den Com-Port zu trennen
+    
     public void close() {
         serialPort.close();
     }
 
-    /** Methode um die obersten Bits 4-7 einer Integer-Zahl zu bekommen.
-     * @param value Vom Typ INT enthält die Integer-Zahl.
-     * @return Gibt den Wert der Bits 4-7 als INT zurück.
-     */
-    private int getHighNibble(int value) {
+    // Methode um die obersten 4 Bits zu bekommen
+     
+    private int getHighBits(int value) {
         for (int i = 0; i < 4; i++) {
             value = value & ~(1 << i);
         }
@@ -108,96 +85,77 @@ public class AuxPort {
         return value;
     }
 
-    /** Methode um die obersten Bits 0-3 einer Integer-Zahl zu bekommen.
-     * @param value Vom Typ INT enthält die Integer-Zahl.
-     * @return Gibt den Wert der Bits 0-3 als INT zurück.
-     */
-    private int getLowNibble(int value) {
+    // Methode um die unteren 4 Bits zu bekommen
+    
+    private int getLowBits(int value) {
         for (int i = 31; i > 3; i--) {
             value = value & ~(1 << i);
         }
         return value;
     }
 
-    /** Methode um ein Nibble so zu verändern, dass es von der Hardware gelesen werden kann.
-     * @param nibble Vom Typ INT enthält den Wert des Nibbles
-     * @return Gibt den Wert des Nibbles + 0x30h als INT zurück
-     */
-    private int setNibbleToSend(int nibble) throws Exception {
-        if (nibble < 0 || nibble > 15) {
+    // Methode Bits so zu verändern, dass es von der Hardware gelesen werden kann
+    
+    private int setBitsToSend(int bits) throws Exception {
+        if (bits < 0 || bits > 15) {
             Exception exception = new Exception();
             throw exception;
         }
-        int valueToSend = 0x30 + nibble;
+        int valueToSend = 0x30 + bits;
         return valueToSend;
     }
 
-    /** Methode um den im Zwischenspeicher liegenden PortA-Wert auszugeben.
-     * @return Gibt den aktuellen Wert von PortA als INT zurück
-     */
+    
     public int getInputPortA() {
         return portA;
     }
 
-    /** Methode um den im Zwischenspeicher liegenden PortB-Wert auszugeben.
-     * @return Gibt den aktuellen Wert von PortB als INT zurück
-     */
+   
     public int getInputPortB() {
         return portB;
     }
 
-    /** Methode um einen neuen Wert in PortA zu speichern und diesen an die Hardware zu senden.
-     * @param portAnewValue Vom Typ INT enthält den neuen Wert von PortA
-     */
-    public void updatePortA(int portAnewValue) {
+    
+    public void setPortA(int portAnewValue) {
         portA = portAnewValue;
-        writeOut();
-        readIn();
+        write();
+        read();
     }
 
-    /** Methode um einen neuen Wert in PortB zu speichern und diesen an die Hardware zu senden.
-     * @param portBnewValue Vom Typ INT enthält den neuen Wert von PortB
-     */
-    public void updatePortB(int portBnewValue) {
+   
+    public void setPortB(int portBnewValue) {
         portB = portBnewValue;
-        writeOut();
-        readIn();
+        write();
+        read();
     }
 
-    /** Methode um einen neuen Wert in TrisA zu speichern und diesen an die Hardware zu senden.
-     * @param trisAnewValue Vom Typ INT enthält den neuen Wert von TrisA
-     */
-    public void updateTrisA(int trisAnewValue) {
+    
+    public void setTrisA(int trisAnewValue) {
         trisA = trisAnewValue;
-        writeOut();
-        readIn();
+        write();
+        read();
     }
 
-    /** Methode um einen neuen Wert in TrisB zu speichern und diesen an die Hardware zu senden.
-     * @param trisBnewValue Vom Typ INT enthält den neuen Wert von TrisB
-     */
-    public void updateTrisB(int trisBnewValue) {
+
+    public void setTrisB(int trisBnewValue) {
         trisB = trisBnewValue;
-        writeOut();
-        readIn();
+        write();
+        read();
     }
 
-    /** Methode um die Werte von PortA, TrisA, PortB und TrisB als Byte-Array zu bekommen.
-     * Die Daten sidn dabei bereits sendefertig, also mit 0x30h bestückt.
-     * @return Gibt die aktuellen Werte von TrisA, PortA, TrisB und PortB in dieser Reihenfolge
-     * sendefertig als Byte-Array zurück.
-     */
+    // Methode um die Werte von PortA, TrisA, PortB und TrisB als Byte-Array zu bekommen.
+   
     private byte[] getValuesAsByteArray() {
         byte data[] = new byte[9];
         try {
-            data[0] = (byte) setNibbleToSend(getHighNibble(trisA));    //Tris A 3xH
-            data[1] = (byte) setNibbleToSend(getLowNibble(trisA));    //Tris A 3xL
-            data[2] = (byte) setNibbleToSend(getHighNibble(portA));    //Port A 3xH
-            data[3] = (byte) setNibbleToSend(getLowNibble(portA));    //Port A 3xL
-            data[4] = (byte) setNibbleToSend(getHighNibble(trisB));    //Tris B 3xH
-            data[5] = (byte) setNibbleToSend(getLowNibble(trisB));    //Tris B 3xL
-            data[6] = (byte) setNibbleToSend(getHighNibble(portB));    //Port B 3xH
-            data[7] = (byte) setNibbleToSend(getLowNibble(portB));    //Port B 3xL
+            data[0] = (byte) setBitsToSend(getHighBits(trisA));    
+            data[1] = (byte) setBitsToSend(getLowBits(trisA));    
+            data[2] = (byte) setBitsToSend(getHighBits(portA));    
+            data[3] = (byte) setBitsToSend(getLowBits(portA));    
+            data[4] = (byte) setBitsToSend(getHighBits(trisB));   
+            data[5] = (byte) setBitsToSend(getLowBits(trisB));    
+            data[6] = (byte) setBitsToSend(getHighBits(portB));   
+            data[7] = (byte) setBitsToSend(getLowBits(portB));    
             data[8] = (byte) '\r'; // CR
         } catch (Exception ex) {
             System.out.println("Fehler: Tris oder PortWerte ausserhalb des Bereichs");
@@ -207,11 +165,9 @@ public class AuxPort {
         return data;
     }
 
-    /** Methode um die Daten an die Hardware zu senden.
-     * Die aktuellen Daten aus den Variablen TrisA, PortA, TrisB und PortB werden
-     * an die Hardware gesendet.
-     */
-    public void writeOut() {
+    // Methode zum Senden der Daten
+     
+    public void write() {
         try {
             OutputStream out = serialPort.getOutputStream();
             out.write(getValuesAsByteArray());
@@ -223,12 +179,9 @@ public class AuxPort {
         }
     }
 
-    /** Methode um die aktuellen daten aus der Hardware auszulesen.
-     * Die Variablen PortA und PortB werden mit den aktuellen
-     * Hardwaredaten überschrieben. Dies geht nur, wenn vorher ein writeOut()
-     * gemacht wurde.
-     */
-    public void readIn() {
+    // Methode zum Einlesen der Daten
+     
+    public void read() {
         try {
             InputStream in = serialPort.getInputStream();
             byte c = 0;
@@ -243,7 +196,7 @@ public class AuxPort {
                 counter++;
             }
             if (portAB[0] > 48) {
-                updatePortsFromReadIn(portAB);
+                decodeData(portAB);
             }
             in.close();
         } catch (IOException e) {
@@ -252,10 +205,9 @@ public class AuxPort {
         }
     }
 
-    /**  Methode um die von der Hardware zurückgegebenen Werte zu dekodieren und
-     * den Variablen zuzuweisen.
-     */
-    private void updatePortsFromReadIn(int portAB[]) {
+    //  Methode Decodieren der Daten
+     
+    private void decodeData(int portAB[]) {
         portA = ((portAB[0] - 0x32) << 4) + portAB[1] - 0x30;
         portB = ((portAB[2] - 0x30) << 4) + portAB[3] - 0x30;
     }

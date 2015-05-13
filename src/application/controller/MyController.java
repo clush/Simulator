@@ -1409,7 +1409,7 @@ public class MyController implements Initializable{
  	   public void actHilfe() throws Exception {
  	     Process p = 
  	         Runtime.getRuntime()
- 	           .exec("rundll32 url.dll,FileProtocolHandler Datenblatt 16F84.pdf");
+ 	           .exec("rundll32 url.dll,FileProtocolHandler DokuPIC.pdf");
  	     p.waitFor(); 	    
  	     }
  	   

@@ -1,0 +1,63 @@
+                    00001           ;Definition einiger Symbole
+                    00002           indirect equ 0
+                    00003           status   equ 03h
+                    00004           fsr      equ 04h
+                    00005           ra       equ 05h
+                    00006           rb       equ 06h
+                    00007           intcon   equ 0bh 
+                    00008           
+                    00009           ORG 0
+                    00010           DEVICE 16F84
+                    00011           
+0000 281D           00012           goto main
+0001 0000           00013           nop
+0002 0000           00014           nop
+0003 0000           00015           nop
+                    00016           ;Interrupz-Service-Routine
+                    00017            
+0004 1D0B           00018           btfss intcon,2      ;war es ein Timer-Interrupt?
+0005 280B           00019           goto isr1           ;nein
+0006 3054           00020           movlw 54h           ;ja, 54h = T in 20h schreiben
+0007 00A0           00021           movwf 20h
+0008 0AB0           00022           incf 30h
+                    00023            
+0009 110B           00024           bcf intcon,2        ;Interrupt-Flag zurücksetzen
+000A 281B           00025           goto isrend
+                    00026  ISR1       
+000B 1C8B           00027           btfss intcon,1      ;war es ein RB0-Interrupt?
+000C 2812           00028           goto isr2           ;nein
+000D 3049           00029           movlw 'I'           ;schreibe ein I an 21h
+000E 00A1           00030           movwf 21h
+000F 0AB1           00031           incf 31h
+                    00032            
+0010 108B           00033           bcf intcon,1        ;RB0-Interrupt-Flag löschen
+0011 281B           00034           goto isrend
+                    00035  ISR2       
+0012 1C0B           00036           btfss intcon,0      ;war es ein RB4-7 Interrupt?
+0013 2819           00037           goto isr3           ;dürfte nie passieren
+0014 3052           00038           movlw 'R'           ;schreibe ein R nach 22h
+0015 00A2           00039           movwf 22h
+0016 0AB2           00040           incf 32h
+                    00041           
+0017 100B           00042           bcf intcon,0        ;auch das Flag löschen
+0018 281B           00043           goto isrend
+                    00044  ISR3       
+0019 3046           00045           movlw 'F'           ;Fehlermeldung
+001A 00A3           00046           movwf 23h
+                    00047             
+                    00048  isrend    
+001B 178B           00049           bsf intcon,7   
+001C 0009           00050           retfie              ;Ende der Inetrrupt-Service-Routine
+                    00051           
+                    00052  main     
+                    00053           ;zuerst die wirksame Flanke für RB0 festlegen (hier die fal
+001D 300F           00054           movlw 00001111b
+001E 1683           00055           bsf status,5
+001F 0081           00056           movwf 1
+0020 1283           00057           bcf status,5
+                    00058           ;nun alle Interrupts freigeben
+0021 3038           00059           movlw 38h
+0022 008B           00060           movwf intcon
+0023 178B           00061           bsf intcon,7
+                    00062           ;Sleep-Funktion starten
+0024 0063           00063           sleep
